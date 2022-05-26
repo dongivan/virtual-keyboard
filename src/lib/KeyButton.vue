@@ -24,7 +24,7 @@ const props = defineProps({
 const attrs = useAttrs();
 const defaultClass =
   attrs.class ||
-  "w-fit min-w-[2rem] h-fit px-2 min-h-[2rem] m-1 bg-gray-300 rounded-md hover:bg-blue-400 active:bg-blue-500";
+  "w-fit min-w-[2rem] h-fit px-2 min-h-[2rem] m-1 bg-gray-300 rounded-md hover:bg-blue-400 active:bg-blue-500 select-none";
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
 const changePage = inject<ChangePageFunction>(prefix("changePage"));
