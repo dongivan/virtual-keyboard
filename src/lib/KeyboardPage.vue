@@ -1,13 +1,20 @@
 <template>
-  <div v-show="refCurrentPage == name" class="w-full h-full">
+  <div
+    v-show="refCurrentPage == name"
+    class="w-full h-full"
+    :class="defaultClass"
+  >
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, watch } from "vue";
+import { computed, inject, provide, useAttrs, watch } from "vue";
 import { RegisterPageFunction } from "./typings";
 import { prefix } from "./utils";
+
+const attrs = useAttrs();
+const defaultClass = attrs.class || attrs.style ? "" : "flex gap-1 flex-wrap";
 
 const props = defineProps({
   name: { type: String, default: "" },
