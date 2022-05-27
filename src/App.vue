@@ -9,8 +9,15 @@
     </div>
     <VirtualKeyboard @key-pressed="(key) => (refKeyPressed = key)">
       <KeyboardPage name="page-1" default>
-        <KeyButton value="1" />
-        <KeyButton value="2" />
+        <KeyButton value="1">
+          <div>label 1</div>
+        </KeyButton>
+        <KeyButton value="2">
+          <template #children>
+            <KeyButton value="2a" />
+            <KeyButton value="3a" />
+          </template>
+        </KeyButton>
         <KeyButton value="page-2" page-button>go page 2</KeyButton>
       </KeyboardPage>
       <KeyboardPage name="page-2">
@@ -30,3 +37,9 @@ import { ref } from "vue";
 
 const refKeyPressed = ref("");
 </script>
+
+<style lang="scss" scoped>
+:deep(.host-button.has-children::after) {
+  @apply border-r-blue-400;
+}
+</style>

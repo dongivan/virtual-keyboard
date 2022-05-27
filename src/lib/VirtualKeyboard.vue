@@ -1,5 +1,5 @@
 <template>
-  <div :class="defaultClass">
+  <div :class="defaultClass" :style="cssVariables">
     <div class="w-full h-full">
       <slot></slot>
     </div>
@@ -7,21 +7,41 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, watch, useAttrs } from "vue";
+import { provide, ref, watch, useAttrs, PropType } from "vue";
 import {
   ChangePageFunction,
   EmitKeyPressedFunction,
   RegisterPageFunction,
   ShiftKeyboardFunction,
+  VirtualKeyboardConfig,
 } from "./typings";
 import { prefix } from "./utils";
 
-const attrs = useAttrs();
-const defaultClass = attrs.class || "w-screen max-h-fit bg-gray-50";
+const props = defineProps({
+  config: {
+    type: Object as PropType<VirtualKeyboardConfig>,
+    default: () => {
+      return {
+        childrenBadgeColor: "#c084fc",
+        childrenXOffset: -4,
+      };
+    },
+  },
+});
+provide<VirtualKeyboardConfig>(prefix("config"), props.config);
+const cssVariables = {
+  "--vk-btn-badge-color-var": props.config.childrenBadgeColor,
+};
 
 const emit = defineEmits<{
   (event: "key-pressed", name: string): void;
 }>();
+provide<EmitKeyPressedFunction>(prefix("emitKeyPressed"), (name) => {
+  emit("key-pressed", name);
+});
+
+const attrs = useAttrs();
+const defaultClass = attrs.class || "w-screen max-h-fit bg-gray-50";
 
 const refIsShifted = ref(false);
 provide(prefix("refIsShifted"), refIsShifted);
@@ -57,7 +77,5 @@ watch(refCurrentPage, () => {
   refIsShifted.value = false;
 });
 
-provide<EmitKeyPressedFunction>(prefix("emitKeyPressed"), (name) => {
-  emit("key-pressed", name);
-});
+provide(prefix("isChildButton"), false);
 </script>
