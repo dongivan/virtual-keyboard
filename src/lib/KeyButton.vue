@@ -226,12 +226,14 @@ const handleTouchstart = () => {
   refCurrentButton.value = props.value;
 };
 const handleTouchmove = (evt: TouchEvent) => {
-  refCurrentButton.value =
-    Object.keys(reactiveChildrenX).find((value) => {
-      const { left, right } = reactiveChildrenX[value],
-        x = evt.changedTouches[0].clientX;
-      return left <= x && right >= x;
-    }) || "";
+  if (refActuallyChildren.value.length > 0) {
+    refCurrentButton.value =
+      Object.keys(reactiveChildrenX).find((value) => {
+        const { left, right } = reactiveChildrenX[value],
+          x = evt.changedTouches[0].clientX;
+        return left <= x && right >= x;
+      }) || "";
+  }
 };
 const handleTouchend = () => {
   refIsTouching.value = false;
