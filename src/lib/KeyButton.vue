@@ -2,15 +2,8 @@
   <button
     v-bind="$attrs"
     ref="refButtonEle"
-    class="virtual-key-button"
-    :class="[
-      defaultClass,
-      {
-        hover: refIsHover,
-        active: refIsActive,
-        focus: refIsFocusing,
-      },
-    ]"
+    class="relative select-none"
+    :class="[refBtnClass, refStateClasses]"
     @click="handleClick(value)"
     @mouseenter="handleMouseenter"
     @mouseleave="handleMouseleave"
@@ -29,7 +22,7 @@
         !config?.hideHasChildrenBadge &&
         refActuallyChildren.length > 0
       "
-      class="badge"
+      :class="refBadgeClasses"
     ></div>
     <slot>
       {{ label || value }}
@@ -124,11 +117,24 @@ const props = defineProps({
   value: { type: String, required: true },
   label: { type: String, default: "" },
   pageButton: { type: Boolean, default: false },
+  btnClass: {
+    type: String,
+    default: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
+  },
+  hoverClass: { type: String, default: "bg-blue-400" },
+  focusClass: { type: String, default: "focus" },
+  activeClass: { type: String, default: "bg-blue-500" },
+  badgeClass: {
+    type: String,
+    default:
+      "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
+  },
+  badgeColorClass: {
+    type: String,
+    default: "border-blue-400",
+  },
 });
 const config = inject<VirtualKeyboardConfig>(prefix("config"));
-
-const attrs = useAttrs();
-const defaultClass = attrs.class ? "" : "default";
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
 const changePage = inject<ChangePageFunction>(prefix("changePage"));
@@ -281,34 +287,22 @@ watch(
   },
   { immediate: true }
 );
+
+const attrs = useAttrs();
+const refBtnClass = computed(() => {
+  return attrs.class ? "" : props.btnClass || config?.buttonClass?.btn;
+});
+const refStateClasses = computed(() => {
+  return {
+    [props.hoverClass || config?.buttonClass?.hover || ""]: refIsHover.value,
+    [props.activeClass || config?.buttonClass?.active || ""]: refIsActive.value,
+    [props.focusClass || config?.buttonClass?.focus || ""]: refIsFocusing.value,
+  };
+});
+const refBadgeClasses = computed(() => {
+  return [
+    props.badgeClass || config?.buttonClass?.badge,
+    props.badgeColorClass || config?.buttonClass?.badgeColor,
+  ];
+});
 </script>
-
-<style lang="scss" scoped>
-.virtual-key-button {
-  @apply relative select-none;
-
-  > .badge {
-    @apply absolute top-0 right-0 w-0 h-0
-      rounded-tr border-transparent border-[6px];
-  }
-
-  &.default {
-    @apply w-fit min-w-[2rem] h-fit min-h-[2rem] p-4
-      rounded 
-      bg-gray-300;
-
-    &.hover {
-      @apply bg-blue-400;
-    }
-
-    &.active {
-      @apply bg-blue-500;
-    }
-
-    > .badge {
-      border-right-color: var(--vk-btn-badge-color-var);
-      border-top-color: var(--vk-btn-badge-color-var);
-    }
-  }
-}
-</style>

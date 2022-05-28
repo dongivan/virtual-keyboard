@@ -1,7 +1,16 @@
+type ButtonClass = {
+  btn?: string;
+  hover?: string;
+  focus?: string;
+  active?: string;
+  badge?: string;
+  badgeColor?: string;
+};
+
 export type VirtualKeyboardConfig = {
   hideHasChildrenBadge?: boolean;
-  childrenBadgeColor?: string;
   childrenXOffset?: number;
+  buttonClass?: ButtonClass;
 };
 
 export type RegisterPageFunction = (

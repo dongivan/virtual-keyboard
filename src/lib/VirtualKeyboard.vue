@@ -1,5 +1,5 @@
 <template>
-  <div :class="defaultClass" :style="cssVariables">
+  <div :class="defaultClass">
     <div class="w-full h-full">
       <slot></slot>
     </div>
@@ -15,23 +15,18 @@ import {
   ShiftKeyboardFunction,
   VirtualKeyboardConfig,
 } from "./typings";
-import { prefix } from "./utils";
+import { prefix, useDefaultConfig } from "./utils";
 
 const props = defineProps({
   config: {
     type: Object as PropType<VirtualKeyboardConfig>,
-    default: () => {
-      return {
-        childrenBadgeColor: "#c084fc",
-        childrenXOffset: -4,
-      };
-    },
+    default: () => ({}),
   },
 });
-provide<VirtualKeyboardConfig>(prefix("config"), props.config);
-const cssVariables = {
-  "--vk-btn-badge-color-var": props.config.childrenBadgeColor,
-};
+provide<VirtualKeyboardConfig>(prefix("config"), {
+  ...useDefaultConfig(),
+  ...props.config,
+});
 
 const emit = defineEmits<{
   (event: "key-pressed", name: string): void;
