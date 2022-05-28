@@ -113,27 +113,29 @@ import { prefix } from "./utils";
 const refButtonEle = ref();
 const refChildrenEle = ref();
 
-const props = defineProps({
-  value: { type: String, required: true },
-  label: { type: String, default: "" },
-  pageButton: { type: Boolean, default: false },
-  btnClass: {
-    type: String,
-    default: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
-  },
-  hoverClass: { type: String, default: "bg-blue-400" },
-  focusClass: { type: String, default: "focus" },
-  activeClass: { type: String, default: "bg-blue-500" },
-  badgeClass: {
-    type: String,
-    default:
-      "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
-  },
-  badgeColorClass: {
-    type: String,
-    default: "border-blue-400",
-  },
+type PropsType = {
+  value: string;
+  label?: string;
+  pageButton?: boolean;
+  btnClass?: string;
+  hoverClass?: string;
+  focusClass?: string;
+  activeClass?: string;
+  badgeClass?: string;
+  badgeColorClass?: string;
+};
+const props = withDefaults(defineProps<PropsType>(), {
+  label: "",
+  pageButton: false,
+  btnClass: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
+  hoverClass: "bg-blue-400",
+  focusClass: "",
+  activeClass: "bg-blue-500",
+  badgeClass:
+    "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
+  badgeColorClass: "border-blue-400",
 });
+
 const config = inject<VirtualKeyboardConfig>(prefix("config"));
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));

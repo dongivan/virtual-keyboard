@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, watch, useAttrs, PropType } from "vue";
+import { provide, ref, watch, useAttrs } from "vue";
 import {
   ChangePageFunction,
   EmitKeyPressedFunction,
@@ -17,12 +17,13 @@ import {
 } from "./typings";
 import { prefix, useDefaultConfig } from "./utils";
 
-const props = defineProps({
-  config: {
-    type: Object as PropType<VirtualKeyboardConfig>,
-    default: () => ({}),
-  },
+type PropsType = {
+  config?: VirtualKeyboardConfig;
+};
+const props = withDefaults(defineProps<PropsType>(), {
+  config: () => ({}),
 });
+
 provide<VirtualKeyboardConfig>(prefix("config"), {
   ...useDefaultConfig(),
   ...props.config,
