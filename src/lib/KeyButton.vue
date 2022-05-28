@@ -3,8 +3,18 @@
     v-bind="$attrs"
     ref="refButtonEle"
     class="relative select-none"
-    :class="[refBtnClass, refStateClasses]"
+    :class="[
+      refBtnClass,
+      {
+        [refBtnHoverClass]: refIsMouseover,
+        [refBtnActiveClass]:
+          refIsTouching || (refIsMouseover && refIsMousedown),
+        [refBtnFocusClass]: refIsFocused,
+      },
+    ]"
     @click="handleClick(value)"
+    @mouseover="handleMouseover"
+    @mouseout="handleMouseout"
     @mouseenter="handleMouseenter"
     @mouseleave="handleMouseleave"
     @mousedown="handleMousedown"
@@ -17,30 +27,54 @@
   >
     <div
       v-if="
-        !isChildButton &&
         !refIsChildrenVisible &&
         !config?.hideHasChildrenBadge &&
-        refActuallyChildren.length > 0
+        refChildrenBtns.length > 0
       "
       :class="refBadgeClasses"
     ></div>
     <slot>
       {{ label || value }}
     </slot>
+    <template v-if="refChildrenBtns.length > 0">
+      <div
+        v-show="refIsChildrenVisible"
+        ref="refChildrenContainerEle"
+        :class="[
+          refChildrenContainerClass,
+          { 'flex-row-reverse': refReverseChildren },
+        ]"
+        :style="refChildrenPositionStyle"
+      >
+        <button
+          v-for="child of refChildrenBtns"
+          :key="child.value"
+          ref="refChildrenEles"
+          :class="[
+            refChildBtnClass,
+            {
+              [refChildBtnHoverClass]: refMouseoverChildBtn == child.value,
+              [refChildBtnActiveClass]:
+                refTouchmoveChildBtn == child.value ||
+                (refMouseoverChildBtn == child.value &&
+                  refMousedownChildBtn == child.value),
+              [refChildBtnFocusClass]: refFocusedChildBtn == child.value,
+            },
+          ]"
+          :data-vk-btn-value="child.value"
+          @click.stop="handleClick(child.value)"
+          @mouseenter.stop="handleMouseenterChild(child.value, $event)"
+          @mouseleave.stop="handleMouseleaveChild"
+          @mousedown.stop="handleMousedownChild(child.value, $event)"
+          @mouseup.stop="handleMouseupChild"
+          @focusin.stop="handleFocusinChild(child.value, $event)"
+          @focusout.stop="handleFocusoutChild"
+        >
+          <slot :name="child.value">{{ child.label || child.value }}</slot>
+        </button>
+      </div>
+    </template>
   </button>
-  <template v-if="!isChildButton">
-    <div
-      v-show="refIsChildrenVisible"
-      ref="refChildrenEle"
-      class="absolute w-fit flex gap-1 p-1 box-content"
-      :class="{ 'flex-row-reverse': refReverseChildren }"
-      :style="refChildrenStyle"
-      @mouseenter="handleMouseenter"
-      @mouseleave="handleMouseleave"
-    >
-      <slot name="children"></slot>
-    </div>
-  </template>
 </template>
 
 <script lang="ts">
@@ -92,7 +126,6 @@ import {
   inject,
   onMounted,
   onUnmounted,
-  provide,
   reactive,
   Ref,
   ref,
@@ -103,19 +136,26 @@ import {
   ChangePageFunction,
   EmitKeyPressedFunction,
   ShiftKeyboardFunction,
-  RegisterChildButtonFunction,
   VirtualKeyboardConfig,
-  UpdateChildButtonRectFunction,
 } from "./typings";
 import { computePosition } from "@floating-ui/dom";
 import { prefix } from "./utils";
 
 const refButtonEle = ref();
-const refChildrenEle = ref();
+const refChildrenContainerEle = ref();
+const refChildrenEles = ref([]);
 
+type ButtonType = {
+  value: string;
+  label?: string;
+};
+
+/* Vue 3.2 defineProps does not support union type ? */
+/* type PropsType = ButtonType & { */
 type PropsType = {
   value: string;
   label?: string;
+  children?: (ButtonType | string)[];
   pageButton?: boolean;
   btnClass?: string;
   hoverClass?: string;
@@ -123,9 +163,15 @@ type PropsType = {
   activeClass?: string;
   badgeClass?: string;
   badgeColorClass?: string;
+  childrenContainerClass?: string;
+  childBtnClass?: string;
+  childHoverClass?: string;
+  childFocusClass?: string;
+  childActiveClass?: string;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   label: "",
+  children: () => [],
   pageButton: false,
   btnClass: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
   hoverClass: "bg-blue-400",
@@ -134,6 +180,11 @@ const props = withDefaults(defineProps<PropsType>(), {
   badgeClass:
     "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
   badgeColorClass: "border-blue-400",
+  childrenContainerClass: "absolute w-fit flex gap-1 p-1 box-content",
+  childBtnClass: "",
+  childHoverClass: "",
+  childFocusClass: "",
+  childActiveClass: "",
 });
 
 const config = inject<VirtualKeyboardConfig>(prefix("config"));
@@ -157,85 +208,119 @@ onMounted(() => {
   refIsMounted.value = true;
 });
 
-const isChildButton = inject<boolean>(prefix("isChildButton"));
+const refChildrenBtns = computed(() => {
+  const filtered: string[] = [props.value];
+  return props.children
+    .map<ButtonType>((child) =>
+      typeof child == "string" ? { value: child } : child
+    )
+    .filter((child) => {
+      if (filtered.includes(child.value)) {
+        return false;
+      } else {
+        filtered.push(child.value);
+        return true;
+      }
+    });
+});
+
 const reactiveChildrenX: Record<string, { left: number; right: number }> =
   reactive({});
-const refChildren = ref([] as string[]);
-const refCurrentButton = ref("");
-provide(prefix("isChildButton"), true);
-if (isChildButton) {
-  const updateChildRect = inject<UpdateChildButtonRectFunction>(
-    prefix("updateChildRect")
-  );
-  const observer = new IntersectionObserver((entries) => {
-    const { intersectionRatio, boundingClientRect } = entries[0];
-    if (intersectionRatio) {
-      updateChildRect?.(props.value, boundingClientRect);
-    }
+const refTouchmoveChildBtn = ref("");
+const observer = new IntersectionObserver((entries) => {
+  if (refIsChildrenVisible.value) {
+    entries.forEach((entry) => {
+      reactiveChildrenX[
+        (entry.target as HTMLButtonElement).dataset.vkBtnValue || ""
+      ] = {
+        left: entry.boundingClientRect.left,
+        right: entry.boundingClientRect.right,
+      };
+    });
+  }
+});
+onMounted(() => {
+  refChildrenEles.value.forEach((ele: HTMLElement) => {
+    observer.observe(ele);
   });
-  onMounted(() => {
-    observer.observe(refButtonEle.value);
-  });
-  onUnmounted(() => {
-    observer.disconnect();
-  });
-  const registerChildButton = inject<RegisterChildButtonFunction>(
-    "registerChildButton"
-  );
-  registerChildButton?.(props.value);
-} else {
-  provide<RegisterChildButtonFunction>("registerChildButton", (value) => {
-    if (!refChildren.value.includes(value)) {
-      refChildren.value.push(value);
-    }
-  });
-  provide<UpdateChildButtonRectFunction>(
-    prefix("updateChildRect"),
-    (value, rect) => {
-      reactiveChildrenX[value] = { left: rect.left, right: rect.right };
-      console.log("update child rect", reactiveChildrenX);
-    }
-  );
-  provide("refCurrentButton", refCurrentButton);
-}
-const refParentCurrentButton = isChildButton
-  ? inject<Ref<string>>("refCurrentButton")
-  : ref("");
+});
+onUnmounted(() => {
+  observer.disconnect();
+});
+
+const refIsHover = ref(false);
+const handleMouseover = () => {
+  refIsHover.value = true;
+};
+const handleMouseout = () => {
+  refIsHover.value = false;
+};
 
 const refIsMouseover = ref(false);
 const refIsMousedown = ref(false);
 const handleMouseenter = (evt: MouseEvent) => {
   refIsMouseover.value = true;
-  if (!evt.buttons) {
+  if (evt.buttons == 0) {
     refIsMousedown.value = false;
   }
 };
 const handleMouseleave = () => {
   refIsMouseover.value = false;
 };
-const handleMousedown = () => {
-  refIsMousedown.value = true;
+
+const handleMousedown = (evt: MouseEvent) => {
+  if (evt.buttons == 1) {
+    refIsMousedown.value = true;
+  }
 };
 const handleMouseup = () => {
   refIsMousedown.value = false;
 };
 
-const refIsFocusing = ref(false);
+const refIsFocused = ref(false);
 const handleFocusin = () => {
-  refIsFocusing.value = true;
+  refIsFocused.value = true;
 };
 const handleFocusout = () => {
-  refIsFocusing.value = false;
+  refIsFocused.value = false;
+};
+
+const refMouseoverChildBtn: Ref<string | undefined> = ref(undefined);
+const refMousedownChildBtn: Ref<string | undefined> = ref(undefined);
+const handleMouseenterChild = (value: string, evt: MouseEvent) => {
+  refMouseoverChildBtn.value = value;
+  if (evt.buttons == 0) {
+    refMousedownChildBtn.value = undefined;
+  }
+};
+const handleMouseleaveChild = () => {
+  refMouseoverChildBtn.value = undefined;
+};
+const handleMousedownChild = (value: string, evt: MouseEvent) => {
+  if (evt.buttons == 1) {
+    refMousedownChildBtn.value = value;
+  }
+};
+const handleMouseupChild = () => {
+  refMousedownChildBtn.value = undefined;
+};
+
+const refFocusedChildBtn: Ref<string | undefined> = ref(undefined);
+const handleFocusinChild = (value: string, evt: FocusEvent) => {
+  refFocusedChildBtn.value = value;
+};
+const handleFocusoutChild = () => {
+  refFocusedChildBtn.value = undefined;
 };
 
 const refIsTouching = ref(false);
 const handleTouchstart = () => {
   refIsTouching.value = true;
-  refCurrentButton.value = props.value;
+  refTouchmoveChildBtn.value = props.value;
 };
 const handleTouchmove = (evt: TouchEvent) => {
-  if (refActuallyChildren.value.length > 0) {
-    refCurrentButton.value =
+  if (refIsChildrenVisible.value) {
+    refTouchmoveChildBtn.value =
       Object.keys(reactiveChildrenX).find((value) => {
         const { left, right } = reactiveChildrenX[value],
           x = evt.changedTouches[0].clientX;
@@ -245,66 +330,86 @@ const handleTouchmove = (evt: TouchEvent) => {
 };
 const handleTouchend = () => {
   refIsTouching.value = false;
-  handleClick(refCurrentButton.value);
-  refCurrentButton.value = "";
+  handleClick(refTouchmoveChildBtn.value);
+  refTouchmoveChildBtn.value = "";
 };
-const refIsHover = computed(() => {
-  return refIsMouseover.value;
-});
-const refIsActive = computed(() => {
-  return (
-    refIsTouching.value ||
-    (refIsMouseover.value && refIsMousedown.value) ||
-    refParentCurrentButton?.value == props.value
-  );
-});
-
-const refActuallyChildren = computed(() => {
-  return refChildren.value.filter((val) => val !== props.value);
-});
 const refIsChildrenVisible = computed(() => {
   return (
-    refActuallyChildren.value.length > 0 &&
+    refChildrenBtns.value.length > 0 &&
     (refIsHover.value || refIsTouching.value)
   );
 });
 
-const refChildrenStyle: Ref<{ left?: string; top?: string }> = ref({});
+const refChildrenPositionStyle: Ref<{ left?: string; top?: string }> = ref({});
 const refReverseChildren = ref(false);
 watch(
-  [refActuallyChildren, refIsChildrenVisible, refIsMounted],
+  [refChildrenBtns, refIsChildrenVisible, refIsMounted],
   ([children, isVisible, isMounted]) => {
     if (!isMounted || !isVisible || !children.length) {
       return;
     }
-    computePosition(refButtonEle.value, refChildrenEle.value, {
+    computePosition(refButtonEle.value, refChildrenContainerEle.value, {
       middleware: [
         offset({ alignmentAxis: config?.childrenXOffset || -4 }),
         placeChildren(),
       ],
     }).then((result) => {
       refReverseChildren.value = result.middlewareData.placeChildren.reversed;
-      refChildrenStyle.value = { left: `${result.x}px`, top: `${result.y}px` };
+      refChildrenPositionStyle.value = {
+        left: `${result.x}px`,
+        top: `${result.y}px`,
+      };
     });
   },
   { immediate: true }
 );
 
 const attrs = useAttrs();
-const refBtnClass = computed(() => {
-  return attrs.class ? "" : props.btnClass || config?.buttonClass?.btn;
-});
-const refStateClasses = computed(() => {
-  return {
-    [props.hoverClass || config?.buttonClass?.hover || ""]: refIsHover.value,
-    [props.activeClass || config?.buttonClass?.active || ""]: refIsActive.value,
-    [props.focusClass || config?.buttonClass?.focus || ""]: refIsFocusing.value,
-  };
-});
-const refBadgeClasses = computed(() => {
-  return [
-    props.badgeClass || config?.buttonClass?.badge,
-    props.badgeColorClass || config?.buttonClass?.badgeColor,
-  ];
-});
+const refBtnClass = computed(() =>
+  attrs.class ? "" : props.btnClass || config?.buttonClass?.btn
+);
+const refBtnHoverClass = computed(
+  () => props.hoverClass || config?.buttonClass?.hover || ""
+);
+const refBtnActiveClass = computed(
+  () => props.activeClass || config?.buttonClass?.active || ""
+);
+const refBtnFocusClass = computed(
+  () => props.focusClass || config?.buttonClass?.focus || ""
+);
+const refBadgeClasses = computed(() => [
+  props.badgeClass || config?.buttonClass?.badge,
+  props.badgeColorClass || config?.buttonClass?.badgeColor,
+]);
+const refChildrenContainerClass = computed(
+  () => props.childrenContainerClass || config?.childrenContainerClass || ""
+);
+const refChildBtnClass = computed(
+  () =>
+    props.childBtnClass ||
+    config?.childButtonClass ||
+    refBtnClass.value ||
+    attrs.class
+);
+const refChildBtnHoverClass = computed(
+  () =>
+    props.childHoverClass ||
+    props.hoverClass ||
+    config?.buttonClass?.hover ||
+    ""
+);
+const refChildBtnActiveClass = computed(
+  () =>
+    props.childActiveClass ||
+    props.activeClass ||
+    config?.buttonClass?.active ||
+    ""
+);
+const refChildBtnFocusClass = computed(
+  () =>
+    props.childFocusClass ||
+    props.focusClass ||
+    config?.buttonClass?.focus ||
+    ""
+);
 </script>

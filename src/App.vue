@@ -12,11 +12,8 @@
         <KeyButton value="1">
           <div>label 1</div>
         </KeyButton>
-        <KeyButton value="2">
-          <template #children>
-            <KeyButton value="2a" />
-            <KeyButton value="3a" />
-          </template>
+        <KeyButton value="2" :children="['2a', '2b']">
+          <template #[`2b`]>2bb</template>
         </KeyButton>
         <KeyButton value="page-2" page-button>go page 2</KeyButton>
       </KeyboardPage>

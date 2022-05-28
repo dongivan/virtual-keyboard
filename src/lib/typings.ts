@@ -3,6 +3,8 @@ type ButtonClass = {
   hover?: string;
   focus?: string;
   active?: string;
+};
+type HasBadgeClass = {
   badge?: string;
   badgeColor?: string;
 };
@@ -10,7 +12,9 @@ type ButtonClass = {
 export type VirtualKeyboardConfig = {
   hideHasChildrenBadge?: boolean;
   childrenXOffset?: number;
-  buttonClass?: ButtonClass;
+  buttonClass?: ButtonClass & HasBadgeClass;
+  childrenContainerClass?: string;
+  childButtonClass?: ButtonClass;
 };
 
 export type RegisterPageFunction = (
@@ -24,10 +28,3 @@ export type ChangePageFunction = (page: string) => void;
 export type ShiftKeyboardFunction = () => void;
 
 export type EmitKeyPressedFunction = (keyName: string) => void;
-
-export type RegisterChildButtonFunction = (value: string) => void;
-
-export type UpdateChildButtonRectFunction = (
-  value: string,
-  rect: DOMRectReadOnly
-) => void;

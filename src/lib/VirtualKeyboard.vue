@@ -72,6 +72,4 @@ provide<ChangePageFunction>(prefix("changePage"), (page) => {
 watch(refCurrentPage, () => {
   refIsShifted.value = false;
 });
-
-provide(prefix("isChildButton"), false);
 </script>
