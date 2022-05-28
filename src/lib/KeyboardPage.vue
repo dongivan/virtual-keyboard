@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, useAttrs, watch } from "vue";
+import { computed, inject, provide, Ref, useAttrs, watch } from "vue";
 import { RegisterPageFunction, VirtualKeyboardConfig } from "./typings";
 import { prefix, useDefaultConfig } from "./utils";
 
@@ -45,11 +45,11 @@ watch(
   { immediate: true }
 );
 
-const refCurrentPage = inject<string>(prefix("refCurrentPage"));
+const refCurrentPage = inject<Ref<string>>(prefix("refCurrentPage"));
 
-const refIsKeyboardShifted = inject<boolean>(prefix("refIsShifted"));
+const refIsKeyboardShifted = inject<Ref<boolean>>(prefix("refIsShifted"));
 const refIsShifted = computed(() => {
-  return refCurrentPage == props.name && refIsKeyboardShifted;
+  return refCurrentPage?.value == props.name && refIsKeyboardShifted?.value;
 });
 provide(prefix("refIsShifted"), refIsShifted);
 </script>
