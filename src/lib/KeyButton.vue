@@ -28,7 +28,7 @@
     <div
       v-if="
         !refIsChildrenVisible &&
-        !config?.hideHasChildrenBadge &&
+        !refConfig.hideHasChildrenBadge &&
         refChildrenBtns.length > 0
       "
       :class="refBadgeClasses"
@@ -139,7 +139,7 @@ import {
   VirtualKeyboardConfig,
 } from "./typings";
 import { computePosition } from "@floating-ui/dom";
-import { prefix } from "./utils";
+import { prefix, useDefaultConfig } from "./utils";
 
 const refButtonEle = ref();
 const refChildrenContainerEle = ref();
@@ -168,6 +168,7 @@ type PropsType = {
   childHoverClass?: string;
   childFocusClass?: string;
   childActiveClass?: string;
+  config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   label: "",
@@ -185,9 +186,17 @@ const props = withDefaults(defineProps<PropsType>(), {
   childHoverClass: "",
   childFocusClass: "",
   childActiveClass: "",
+  config: undefined,
 });
 
-const config = inject<VirtualKeyboardConfig>(prefix("config"));
+const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
+  prefix("refConfig")
+);
+const refConfig = computed<VirtualKeyboardConfig>(() => ({
+  ...useDefaultConfig(),
+  ...refKeyboardConfig?.value,
+  ...props.config,
+}));
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
 const changePage = inject<ChangePageFunction>(prefix("changePage"));
@@ -350,7 +359,7 @@ watch(
     }
     computePosition(refButtonEle.value, refChildrenContainerEle.value, {
       middleware: [
-        offset({ alignmentAxis: config?.childrenXOffset || -4 }),
+        offset({ alignmentAxis: refConfig.value.childrenXOffset || -4 }),
         placeChildren(),
       ],
     }).then((result) => {
@@ -366,28 +375,29 @@ watch(
 
 const attrs = useAttrs();
 const refBtnClass = computed(() =>
-  attrs.class ? "" : props.btnClass || config?.buttonClass?.btn
+  attrs.class ? "" : props.btnClass || refConfig.value.buttonClass?.btn
 );
 const refBtnHoverClass = computed(
-  () => props.hoverClass || config?.buttonClass?.hover || ""
+  () => props.hoverClass || refConfig.value.buttonClass?.hover || ""
 );
 const refBtnActiveClass = computed(
-  () => props.activeClass || config?.buttonClass?.active || ""
+  () => props.activeClass || refConfig.value.buttonClass?.active || ""
 );
 const refBtnFocusClass = computed(
-  () => props.focusClass || config?.buttonClass?.focus || ""
+  () => props.focusClass || refConfig.value.buttonClass?.focus || ""
 );
 const refBadgeClasses = computed(() => [
-  props.badgeClass || config?.buttonClass?.badge,
-  props.badgeColorClass || config?.buttonClass?.badgeColor,
+  props.badgeClass || refConfig.value.buttonClass?.badge,
+  props.badgeColorClass || refConfig.value.buttonClass?.badgeColor,
 ]);
 const refChildrenContainerClass = computed(
-  () => props.childrenContainerClass || config?.childrenContainerClass || ""
+  () =>
+    props.childrenContainerClass || refConfig.value.childrenContainerClass || ""
 );
 const refChildBtnClass = computed(
   () =>
     props.childBtnClass ||
-    config?.childButtonClass ||
+    refConfig.value.childButtonClass ||
     refBtnClass.value ||
     attrs.class
 );
@@ -395,21 +405,21 @@ const refChildBtnHoverClass = computed(
   () =>
     props.childHoverClass ||
     props.hoverClass ||
-    config?.buttonClass?.hover ||
+    refConfig.value.buttonClass?.hover ||
     ""
 );
 const refChildBtnActiveClass = computed(
   () =>
     props.childActiveClass ||
     props.activeClass ||
-    config?.buttonClass?.active ||
+    refConfig.value.buttonClass?.active ||
     ""
 );
 const refChildBtnFocusClass = computed(
   () =>
     props.childFocusClass ||
     props.focusClass ||
-    config?.buttonClass?.focus ||
+    refConfig.value.buttonClass?.focus ||
     ""
 );
 </script>

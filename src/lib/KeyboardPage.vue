@@ -23,15 +23,22 @@ const props = withDefaults(defineProps<PropsType>(), {
   name: "",
   default: false,
   pageClass: "flex gap-1 flex-wrap",
-  config: () => ({}),
+  config: undefined,
 });
 
-const keyboardConfig = inject<VirtualKeyboardConfig>(prefix("config"));
-provide<VirtualKeyboardConfig>(prefix("config"), {
-  ...useDefaultConfig(),
-  ...keyboardConfig,
-  ...props.config,
-});
+const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
+  prefix("refConfig")
+);
+const refConfig = computed<VirtualKeyboardConfig>(() =>
+  !props.config && !refKeyboardConfig?.value
+    ? props.config
+    : {
+        ...useDefaultConfig(),
+        ...refKeyboardConfig?.value,
+        ...props.config,
+      }
+);
+provide(prefix("refConfig"), refConfig);
 
 const attrs = useAttrs();
 const defaultClass = attrs.class ? "" : props.pageClass;
