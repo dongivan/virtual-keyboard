@@ -9,6 +9,7 @@
     </div>
     <VirtualKeyboard @key-pressed="(key) => (refKeyPressed = key)">
       <KeyboardPage name="page-1" default>
+        <KeyButton value="__SHIFT__" label="shift" />
         <KeyButton value="1">
           <div>label 1</div>
         </KeyButton>

@@ -12,9 +12,6 @@
         [refBtnFocusClass]: refIsFocused,
       },
     ]"
-    @click="handleClick(value)"
-    @mouseover="handleMouseover"
-    @mouseout="handleMouseout"
     @mouseenter="handleMouseenter"
     @mouseleave="handleMouseleave"
     @mousedown="handleMousedown"
@@ -27,16 +24,16 @@
   >
     <div
       v-if="
+        refChildrenBtns.length > 0 &&
         !refIsChildrenVisible &&
-        !refConfig.hideHasChildrenBadge &&
-        refChildrenBtns.length > 0
+        !refConfig.hideHasChildrenBadge
       "
       :class="refBadgeClasses"
     ></div>
     <slot>
-      {{ label || value }}
+      {{ refPrimaryBtn.label || refPrimaryBtn.value }}
     </slot>
-    <template v-if="refChildrenBtns.length > 0">
+    <template v-if="refVisibleChildrenBtns.length > 0">
       <div
         v-show="refIsChildrenVisible"
         ref="refChildrenContainerEle"
@@ -47,9 +44,9 @@
         :style="refChildrenPositionStyle"
       >
         <button
-          v-for="child of refChildrenBtns"
+          v-for="child of refVisibleChildrenBtns"
           :key="child.value"
-          ref="refChildrenEles"
+          ref="refChildrenBtnEles"
           :class="[
             refChildBtnClass,
             {
@@ -124,6 +121,7 @@ const placeChildren = (): Middleware => ({
 import {
   computed,
   inject,
+  nextTick,
   onMounted,
   onUnmounted,
   reactive,
@@ -143,7 +141,7 @@ import { prefix, useDefaultConfig } from "./utils";
 
 const refButtonEle = ref();
 const refChildrenContainerEle = ref();
-const refChildrenEles = ref([]);
+const refChildrenBtnEles = ref([]);
 
 type ButtonType = {
   value: string;
@@ -156,6 +154,7 @@ type PropsType = {
   value: string;
   label?: string;
   children?: (ButtonType | string)[];
+  shiftIndex?: number;
   pageButton?: boolean;
   btnClass?: string;
   hoverClass?: string;
@@ -173,6 +172,7 @@ type PropsType = {
 const props = withDefaults(defineProps<PropsType>(), {
   label: "",
   children: () => [],
+  shiftIndex: 0,
   pageButton: false,
   btnClass: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
   hoverClass: "bg-blue-400",
@@ -217,54 +217,6 @@ onMounted(() => {
   refIsMounted.value = true;
 });
 
-const refChildrenBtns = computed(() => {
-  const filtered: string[] = [props.value];
-  return props.children
-    .map<ButtonType>((child) =>
-      typeof child == "string" ? { value: child } : child
-    )
-    .filter((child) => {
-      if (filtered.includes(child.value)) {
-        return false;
-      } else {
-        filtered.push(child.value);
-        return true;
-      }
-    });
-});
-
-const reactiveChildrenX: Record<string, { left: number; right: number }> =
-  reactive({});
-const refTouchmoveChildBtn = ref("");
-const observer = new IntersectionObserver((entries) => {
-  if (refIsChildrenVisible.value) {
-    entries.forEach((entry) => {
-      reactiveChildrenX[
-        (entry.target as HTMLButtonElement).dataset.vkBtnValue || ""
-      ] = {
-        left: entry.boundingClientRect.left,
-        right: entry.boundingClientRect.right,
-      };
-    });
-  }
-});
-onMounted(() => {
-  refChildrenEles.value.forEach((ele: HTMLElement) => {
-    observer.observe(ele);
-  });
-});
-onUnmounted(() => {
-  observer.disconnect();
-});
-
-const refIsHover = ref(false);
-const handleMouseover = () => {
-  refIsHover.value = true;
-};
-const handleMouseout = () => {
-  refIsHover.value = false;
-};
-
 const refIsMouseover = ref(false);
 const refIsMousedown = ref(false);
 const handleMouseenter = (evt: MouseEvent) => {
@@ -283,6 +235,9 @@ const handleMousedown = (evt: MouseEvent) => {
   }
 };
 const handleMouseup = () => {
+  if (refIsMousedown.value) {
+    handleClick(refPrimaryBtn.value.value);
+  }
   refIsMousedown.value = false;
 };
 
@@ -292,6 +247,7 @@ const handleFocusin = () => {
 };
 const handleFocusout = () => {
   refIsFocused.value = false;
+  refIsMousedown.value = false;
 };
 
 const refMouseoverChildBtn: Ref<string | undefined> = ref(undefined);
@@ -309,6 +265,7 @@ const handleMousedownChild = (value: string, evt: MouseEvent) => {
   if (evt.buttons == 1) {
     refMousedownChildBtn.value = value;
   }
+  refIsMousedown.value = false;
 };
 const handleMouseupChild = () => {
   refMousedownChildBtn.value = undefined;
@@ -323,15 +280,18 @@ const handleFocusoutChild = () => {
 };
 
 const refIsTouching = ref(false);
+const reactiveChildrenXAxis: Record<string, { left: number; right: number }> =
+  reactive({});
+const refTouchmoveChildBtn = ref("");
 const handleTouchstart = () => {
   refIsTouching.value = true;
-  refTouchmoveChildBtn.value = props.value;
+  refTouchmoveChildBtn.value = refPrimaryBtn.value.value;
 };
 const handleTouchmove = (evt: TouchEvent) => {
   if (refIsChildrenVisible.value) {
     refTouchmoveChildBtn.value =
-      Object.keys(reactiveChildrenX).find((value) => {
-        const { left, right } = reactiveChildrenX[value],
+      Object.keys(reactiveChildrenXAxis).find((value) => {
+        const { left, right } = reactiveChildrenXAxis[value],
           x = evt.changedTouches[0].clientX;
         return left <= x && right >= x;
       }) || "";
@@ -345,29 +305,117 @@ const handleTouchend = () => {
 const refIsChildrenVisible = computed(() => {
   return (
     refChildrenBtns.value.length > 0 &&
-    (refIsHover.value || refIsTouching.value)
+    // (refIsHover.value || refIsTouching.value)
+    (refIsMouseover.value || refIsTouching.value)
   );
+});
+
+const refTouchableDevice = ref(false);
+watch(refIsMouseover, () => (refTouchableDevice.value = false));
+watch(refIsTouching, () => (refTouchableDevice.value = true));
+
+const parseButtonType: (btn: string | ButtonType) => ButtonType = (btn) =>
+  typeof btn == "string" ? { value: btn } : btn;
+const refIsShifted = inject<Ref<boolean>>(prefix("refIsShifted"));
+const defaultBtn = { value: props.value, label: props.label };
+const refPrimaryBtn = computed<ButtonType>(() => {
+  if (refIsShifted?.value && props.children[props.shiftIndex]) {
+    const shiftChild = parseButtonType(props.children[props.shiftIndex]);
+    if (shiftChild.value !== props.value) {
+      return shiftChild;
+    }
+  }
+  return defaultBtn;
+});
+const refChildrenBtns = computed(() => {
+  const filtered: string[] = [props.value];
+  return props.children
+    .map<ButtonType>((child) => parseButtonType(child))
+    .filter((child) => {
+      if (filtered.includes(child.value)) {
+        return false;
+      } else {
+        filtered.push(child.value);
+        return true;
+      }
+    });
+});
+const refVisibleChildrenBtns = computed(() => {
+  const children =
+    refPrimaryBtn.value.value == props.value
+      ? [...refChildrenBtns.value]
+      : refChildrenBtns.value.map((child) =>
+          child.value == refPrimaryBtn.value.value ? defaultBtn : child
+        );
+  if (refTouchableDevice.value && children.length > 0) {
+    children.unshift(refPrimaryBtn.value);
+  }
+  return children;
+});
+
+const observer = new IntersectionObserver((entries) => {
+  if (refIsChildrenVisible.value) {
+    entries.forEach((entry) => {
+      reactiveChildrenXAxis[
+        (entry.target as HTMLButtonElement).dataset.vkBtnValue || ""
+      ] = {
+        left: entry.boundingClientRect.left,
+        right: entry.boundingClientRect.right,
+      };
+    });
+  }
+});
+watch(
+  [refVisibleChildrenBtns, refIsMounted],
+  ([children, isMounted]) => {
+    if (!isMounted) {
+      return;
+    }
+    observer.disconnect();
+    if (!children.length) {
+      return;
+    }
+    /* DOM will be changed in next tick, so we should call `observe` after that. */
+    nextTick(() => {
+      if (!refChildrenContainerEle.value) {
+        return;
+      }
+      for (const ele of refChildrenContainerEle.value.children) {
+        observer.observe(ele);
+      }
+    });
+  },
+  { immediate: true }
+);
+onUnmounted(() => {
+  observer.disconnect();
 });
 
 const refChildrenPositionStyle: Ref<{ left?: string; top?: string }> = ref({});
 const refReverseChildren = ref(false);
 watch(
-  [refChildrenBtns, refIsChildrenVisible, refIsMounted],
+  [refVisibleChildrenBtns, refIsChildrenVisible, refIsMounted],
   ([children, isVisible, isMounted]) => {
     if (!isMounted || !isVisible || !children.length) {
       return;
     }
-    computePosition(refButtonEle.value, refChildrenContainerEle.value, {
-      middleware: [
-        offset({ alignmentAxis: refConfig.value.childrenXOffset || -4 }),
-        placeChildren(),
-      ],
-    }).then((result) => {
-      refReverseChildren.value = result.middlewareData.placeChildren.reversed;
-      refChildrenPositionStyle.value = {
-        left: `${result.x}px`,
-        top: `${result.y}px`,
-      };
+    /* DOM will be changed in next tick, so we should call `computePosition` after that. */
+    nextTick(() => {
+      if (!refIsChildrenVisible.value) {
+        return;
+      }
+      computePosition(refButtonEle.value, refChildrenContainerEle.value, {
+        middleware: [
+          offset({ alignmentAxis: refConfig.value.childrenXOffset || -4 }),
+          placeChildren(),
+        ],
+      }).then((result) => {
+        refReverseChildren.value = result.middlewareData.placeChildren.reversed;
+        refChildrenPositionStyle.value = {
+          left: `${result.x}px`,
+          top: `${result.y}px`,
+        };
+      });
     });
   },
   { immediate: true }
