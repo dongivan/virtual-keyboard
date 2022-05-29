@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, watch, useAttrs, computed } from "vue";
+import { provide, ref, watch, useAttrs, computed, readonly } from "vue";
 import {
   ChangePageFunction,
   EmitKeyPressedFunction,
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<PropsType>(), {
 const refConfig = computed<VirtualKeyboardConfig>(() =>
   props.config ? { ...useDefaultConfig(), ...props.config } : props.config
 );
-provide(prefix("refConfig"), refConfig);
+provide(prefix("refConfig"), readonly(refConfig));
 
 const emit = defineEmits<{
   (event: "key-pressed", name: string): void;
@@ -40,14 +40,14 @@ const attrs = useAttrs();
 const defaultClass = attrs.class || "w-screen max-h-fit bg-gray-50";
 
 const refIsShifted = ref(false);
-provide(prefix("refIsShifted"), refIsShifted);
+provide(prefix("refIsShifted"), readonly(refIsShifted));
 provide<ShiftKeyboardFunction>(prefix("shiftKeyboard"), () => {
   refIsShifted.value = !refIsShifted.value;
 });
 
 const refCurrentPage = ref("");
 const refPages = ref([] as string[]);
-provide(prefix("refCurrentPage"), refCurrentPage);
+provide(prefix("refCurrentPage"), readonly(refCurrentPage));
 provide<RegisterPageFunction>(
   prefix("registerPage"),
   (name, isDefault, oldName) => {

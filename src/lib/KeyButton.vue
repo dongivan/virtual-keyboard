@@ -316,7 +316,7 @@ watch(refIsTouching, () => (refTouchableDevice.value = true));
 
 const parseButtonType: (btn: string | ButtonType) => ButtonType = (btn) =>
   typeof btn == "string" ? { value: btn } : btn;
-const refIsShifted = inject<Ref<boolean>>(prefix("refIsShifted"));
+const refIsShifted = inject<Readonly<Ref<boolean>>>(prefix("refIsShifted"));
 const defaultBtn = { value: props.value, label: props.label };
 const refPrimaryBtn = computed<ButtonType>(() => {
   if (refIsShifted?.value && props.children[props.shiftIndex]) {
