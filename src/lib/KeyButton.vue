@@ -397,7 +397,7 @@ const refChildrenContainerClass = computed(
 const refChildBtnClass = computed(
   () =>
     props.childBtnClass ||
-    refConfig.value.childButtonClass ||
+    refConfig.value.childButtonClass?.btn ||
     refBtnClass.value ||
     attrs.class
 );
@@ -405,21 +405,21 @@ const refChildBtnHoverClass = computed(
   () =>
     props.childHoverClass ||
     props.hoverClass ||
-    refConfig.value.buttonClass?.hover ||
+    refConfig.value.childButtonClass?.hover ||
     ""
 );
 const refChildBtnActiveClass = computed(
   () =>
     props.childActiveClass ||
     props.activeClass ||
-    refConfig.value.buttonClass?.active ||
+    refConfig.value.childButtonClass?.active ||
     ""
 );
 const refChildBtnFocusClass = computed(
   () =>
     props.childFocusClass ||
     props.focusClass ||
-    refConfig.value.buttonClass?.focus ||
+    refConfig.value.childButtonClass?.focus ||
     ""
 );
 </script>
