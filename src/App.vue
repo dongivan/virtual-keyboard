@@ -14,15 +14,17 @@
           <div>label 1</div>
         </KeyButton>
         <KeyButton value="2" :children="['2a', '2b']">
+          <template #[`2a`]>2aa</template>
           <template #[`2b`]>2bb</template>
         </KeyButton>
-        <KeyButton value="page-2" page-button>go page 2</KeyButton>
       </KeyboardPage>
       <KeyboardPage name="page-2">
         <KeyButton value="3" />
         <KeyButton value="4" />
-        <KeyButton value="page-1" page-button>go page 1</KeyButton>
       </KeyboardPage>
+      <KeyButton value="page-1" page-button :children="['page-2']">
+        <template #[`page-2`]> go page 2 </template>
+      </KeyButton>
     </VirtualKeyboard>
   </div>
 </template>

@@ -305,7 +305,6 @@ const handleTouchend = () => {
 const refIsChildrenVisible = computed(() => {
   return (
     refChildrenBtns.value.length > 0 &&
-    // (refIsHover.value || refIsTouching.value)
     (refIsMouseover.value || refIsTouching.value)
   );
 });
@@ -317,16 +316,8 @@ watch(refIsTouching, () => (refTouchableDevice.value = true));
 const parseButtonType: (btn: string | ButtonType) => ButtonType = (btn) =>
   typeof btn == "string" ? { value: btn } : btn;
 const refIsShifted = inject<Readonly<Ref<boolean>>>(prefix("refIsShifted"));
+const refCurrentPage = inject<Readonly<Ref<string>>>(prefix("refCurrentPage"));
 const defaultBtn = { value: props.value, label: props.label };
-const refPrimaryBtn = computed<ButtonType>(() => {
-  if (refIsShifted?.value && props.children[props.shiftIndex]) {
-    const shiftChild = parseButtonType(props.children[props.shiftIndex]);
-    if (shiftChild.value !== props.value) {
-      return shiftChild;
-    }
-  }
-  return defaultBtn;
-});
 const refChildrenBtns = computed(() => {
   const filtered: string[] = [props.value];
   return props.children
@@ -339,6 +330,21 @@ const refChildrenBtns = computed(() => {
         return true;
       }
     });
+});
+const refPrimaryBtn = computed<ButtonType>(() => {
+  if (props.pageButton) {
+    return (
+      refChildrenBtns.value.find(
+        (child) => child.value == refCurrentPage?.value
+      ) || defaultBtn
+    );
+  } else if (refIsShifted?.value && props.children[props.shiftIndex]) {
+    const shiftChild = parseButtonType(props.children[props.shiftIndex]);
+    if (shiftChild.value !== props.value) {
+      return shiftChild;
+    }
+  }
+  return defaultBtn;
 });
 const refVisibleChildrenBtns = computed(() => {
   const children =
