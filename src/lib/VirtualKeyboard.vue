@@ -1,13 +1,11 @@
 <template>
-  <div :class="defaultClass">
-    <div class="w-full h-full">
-      <slot></slot>
-    </div>
+  <div>
+    <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { provide, ref, watch, useAttrs, computed, readonly } from "vue";
+import { provide, ref, watch, computed, readonly } from "vue";
 import {
   ChangePageFunction,
   EmitKeyPressedFunction,
@@ -35,9 +33,6 @@ const emit = defineEmits<{
 provide<EmitKeyPressedFunction>(prefix("emitKeyPressed"), (name) => {
   emit("key-pressed", name);
 });
-
-const attrs = useAttrs();
-const defaultClass = attrs.class || "w-screen max-h-fit bg-gray-50";
 
 const refIsShifted = ref(false);
 provide(prefix("refIsShifted"), readonly(refIsShifted));

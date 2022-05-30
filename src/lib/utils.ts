@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import { VirtualKeyboardConfig } from "./typings";
 
 export function prefix(str: string) {
@@ -8,16 +9,44 @@ export function useDefaultConfig(): VirtualKeyboardConfig {
   return {
     defaultPageClass: "flex gap-1 flex-wrap",
     buttonClass: {
-      btn: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
-      hover: "bg-blue-400",
-      active: "bg-blue-500",
+      btn: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-2 rounded bg-gray-200",
+      active: "bg-gray-400",
+      hover: "bg-gray-300",
       badge:
         "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
       badgeColor: "border-blue-400",
     },
-    childrenContainerClass: "w-fit flex gap-1 p-1 box-content",
+    childrenContainerClass:
+      "w-max flex gap-1 p-1 border border-gray-400 rounded-md bg-gray-100",
+    childButtonClass: {},
     childrenContainerOffset: {
-      alignmentAxis: -4,
+      alignmentAxis: 0,
     },
   };
+}
+
+export function mergeClasses(
+  classes:
+    | undefined
+    | string
+    | Record<string, unknown>
+    | (undefined | string | Record<string, unknown>)[]
+): string {
+  if (Array.isArray(classes)) {
+    return twMerge(
+      ...(typeof classes == "string"
+        ? [classes]
+        : classes.map<string>((cls) =>
+            typeof cls == "string"
+              ? cls
+              : cls == undefined
+              ? ""
+              : Object.keys(cls)
+                  .filter((clsName) => cls[clsName])
+                  .join(" ")
+          ))
+    );
+  } else {
+    return mergeClasses([classes]);
+  }
 }

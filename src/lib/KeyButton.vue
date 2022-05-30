@@ -1,17 +1,19 @@
 <template>
   <button
-    v-bind="$attrs"
+    v-bind="{ ...$attrs, class: '' }"
     ref="refButtonEle"
     class="relative select-none"
-    :class="[
-      refBtnClass,
-      {
-        [refBtnHoverClass]: refIsMouseover,
-        [refBtnActiveClass]:
-          refIsTouching || (refIsMouseover && refIsMousedown),
-        [refBtnFocusClass]: refIsFocused,
-      },
-    ]"
+    :class="
+      mergeClasses([
+        refBtnClass,
+        {
+          [refBtnHoverClass]: refIsMouseover,
+          [refBtnActiveClass]:
+            refIsTouching || (refIsMouseover && refIsMousedown),
+          [refBtnFocusClass]: refIsFocused,
+        },
+      ])
+    "
     @mouseenter="handleMouseenter"
     @mouseleave="handleMouseleave"
     @mousedown="handleMousedown"
@@ -48,17 +50,19 @@
           v-for="child of refVisibleChildrenBtns"
           :key="child.value"
           ref="refChildrenBtnEles"
-          :class="[
-            refChildBtnClass,
-            {
-              [refChildBtnHoverClass]: refMouseoverChildBtn == child.value,
-              [refChildBtnActiveClass]:
-                refTouchmoveChildBtn == child.value ||
-                (refMouseoverChildBtn == child.value &&
-                  refMousedownChildBtn == child.value),
-              [refChildBtnFocusClass]: refFocusedChildBtn == child.value,
-            },
-          ]"
+          :class="
+            mergeClasses([
+              refChildBtnClass,
+              {
+                [refChildBtnHoverClass]: refMouseoverChildBtn == child.value,
+                [refChildBtnActiveClass]:
+                  refTouchmoveChildBtn == child.value ||
+                  (refMouseoverChildBtn == child.value &&
+                    refMousedownChildBtn == child.value),
+                [refChildBtnFocusClass]: refFocusedChildBtn == child.value,
+              },
+            ])
+          "
           :data-vk-btn-value="child.value"
           @click.stop="handleClick(child.value)"
           @mouseenter.stop="handleMouseenterChild(child.value, $event)"
@@ -138,7 +142,7 @@ import {
   VirtualKeyboardConfig,
 } from "./typings";
 import { computePosition } from "@floating-ui/dom";
-import { prefix, useDefaultConfig } from "./utils";
+import { prefix, useDefaultConfig, mergeClasses } from "./utils";
 
 const refButtonEle = ref();
 const refChildrenContainerEle = ref();
@@ -438,8 +442,11 @@ watch(
 );
 
 const attrs = useAttrs();
-const refBtnClass = computed(() =>
-  attrs.class ? "" : props.btnClass || refConfig.value.buttonClass?.btn
+const refBtnClass = computed(
+  () =>
+    (attrs.class as string) ||
+    props.btnClass ||
+    refConfig.value.buttonClass?.btn
 );
 const refBtnHoverClass = computed(
   () => props.hoverClass || refConfig.value.buttonClass?.hover || ""
@@ -462,8 +469,7 @@ const refChildBtnClass = computed(
   () =>
     props.childBtnClass ||
     refConfig.value.childButtonClass?.btn ||
-    refBtnClass.value ||
-    attrs.class
+    refBtnClass.value
 );
 const refChildBtnHoverClass = computed(
   () =>

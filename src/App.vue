@@ -7,7 +7,10 @@
       </div>
       <div v-else>Please press the virtual keyboard below:</div>
     </div>
-    <VirtualKeyboard @key-pressed="(key) => (refKeyPressed = key)">
+    <VirtualKeyboard
+      class="border rounded border-gray-600 p-2"
+      @key-pressed="(key) => (refKeyPressed = key)"
+    >
       <div class="flex flex-col gap-1">
         <KeyboardPage name="page-1" default>
           <KeyButton value="__SHIFT__" label="shift" />
