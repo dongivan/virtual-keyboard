@@ -54,17 +54,18 @@
             mergeClasses([
               refChildBtnClass,
               {
-                [refChildBtnHoverClass]: refMouseoverChildBtn == child.value,
+                [refChildBtnHoverClass]:
+                  refMouseoverChildBtnValue == child.value,
                 [refChildBtnActiveClass]:
-                  refTouchmoveChildBtn == child.value ||
-                  (refMouseoverChildBtn == child.value &&
-                    refMousedownChildBtn == child.value),
-                [refChildBtnFocusClass]: refFocusedChildBtn == child.value,
+                  refTouchmoveChildBtnValue == child.value ||
+                  (refMouseoverChildBtnValue == child.value &&
+                    refMousedownChildBtnValue == child.value),
+                [refChildBtnFocusClass]: refFocusedChildBtnValue == child.value,
               },
             ])
           "
           :data-vk-btn-value="child.value"
-          @click.stop="handleClick(child.value)"
+          @click.stop="handleClick(child.value, false)"
           @mouseenter.stop="handleMouseenterChild(child.value, $event)"
           @mouseleave.stop="handleMouseleaveChild"
           @mousedown.stop="handleMousedownChild(child.value, $event)"
@@ -209,10 +210,20 @@ const refConfig = computed<VirtualKeyboardConfig>(() => ({
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
 const changePage = inject<ChangePageFunction>(prefix("changePage"));
 const shiftKeyboard = inject<ShiftKeyboardFunction>(prefix("shiftKeyboard"));
+const refCurrentPage = inject<Readonly<Ref<string>>>(prefix("refCurrentPage"));
 
-const handleClick = (value: string) => {
+const handleClick = (value: string, isPrimaryBtn: boolean) => {
   if (props.pageButton) {
-    changePage?.(value);
+    if (isPrimaryBtn && value == refCurrentPage?.value) {
+      const page = refVisibleChildrenBtns.value.find(
+        (child) => child.value != value
+      )?.value;
+      if (page) {
+        changePage?.(page);
+      }
+    } else {
+      changePage?.(value);
+    }
   } else if (value == "__SHIFT__") {
     shiftKeyboard?.();
   } else {
@@ -244,7 +255,7 @@ const handleMousedown = (evt: MouseEvent) => {
 };
 const handleMouseup = () => {
   if (refIsMousedown.value) {
-    handleClick(refPrimaryBtn.value.value);
+    handleClick(refPrimaryBtn.value.value, true);
   }
   refIsMousedown.value = false;
 };
@@ -258,46 +269,45 @@ const handleFocusout = () => {
   refIsMousedown.value = false;
 };
 
-const refMouseoverChildBtn: Ref<string | undefined> = ref(undefined);
-const refMousedownChildBtn: Ref<string | undefined> = ref(undefined);
+const refMouseoverChildBtnValue: Ref<string | undefined> = ref(undefined);
+const refMousedownChildBtnValue: Ref<string | undefined> = ref(undefined);
 const handleMouseenterChild = (value: string, evt: MouseEvent) => {
-  refMouseoverChildBtn.value = value;
+  refMouseoverChildBtnValue.value = value;
   if (evt.buttons == 0) {
-    refMousedownChildBtn.value = undefined;
+    refMousedownChildBtnValue.value = undefined;
   }
 };
 const handleMouseleaveChild = () => {
-  refMouseoverChildBtn.value = undefined;
+  refMouseoverChildBtnValue.value = undefined;
 };
 const handleMousedownChild = (value: string, evt: MouseEvent) => {
   if (evt.buttons == 1) {
-    refMousedownChildBtn.value = value;
+    refMousedownChildBtnValue.value = value;
   }
   refIsMousedown.value = false;
 };
 const handleMouseupChild = () => {
-  refMousedownChildBtn.value = undefined;
+  refMousedownChildBtnValue.value = undefined;
 };
 
-const refFocusedChildBtn: Ref<string | undefined> = ref(undefined);
+const refFocusedChildBtnValue: Ref<string | undefined> = ref(undefined);
 const handleFocusinChild = (value: string, evt: FocusEvent) => {
-  refFocusedChildBtn.value = value;
+  refFocusedChildBtnValue.value = value;
 };
 const handleFocusoutChild = () => {
-  refFocusedChildBtn.value = undefined;
+  refFocusedChildBtnValue.value = undefined;
 };
 
 const refIsTouching = ref(false);
 const reactiveChildrenXAxis: Record<string, { left: number; right: number }> =
   reactive({});
-const refTouchmoveChildBtn = ref("");
+const refTouchmoveChildBtnValue = ref("");
 const handleTouchstart = () => {
   refIsTouching.value = true;
-  refTouchmoveChildBtn.value = refPrimaryBtn.value.value;
 };
 const handleTouchmove = (evt: TouchEvent) => {
   if (refIsChildrenVisible.value) {
-    refTouchmoveChildBtn.value =
+    refTouchmoveChildBtnValue.value =
       Object.keys(reactiveChildrenXAxis).find((value) => {
         const { left, right } = reactiveChildrenXAxis[value],
           x = evt.changedTouches[0].clientX;
@@ -307,8 +317,11 @@ const handleTouchmove = (evt: TouchEvent) => {
 };
 const handleTouchend = () => {
   refIsTouching.value = false;
-  handleClick(refTouchmoveChildBtn.value);
-  refTouchmoveChildBtn.value = "";
+  handleClick(
+    refTouchmoveChildBtnValue.value || refPrimaryBtn.value.value,
+    refTouchmoveChildBtnValue.value ? false : true
+  );
+  refTouchmoveChildBtnValue.value = "";
 };
 const refIsChildrenVisible = computed(() => {
   return (
@@ -326,7 +339,6 @@ const parseButtonType: (btn: string | ButtonType) => SlotedButtonType = (btn) =>
     ? { value: btn, slotName: btn }
     : { ...btn, slotName: btn.value };
 const refIsShifted = inject<Readonly<Ref<boolean>>>(prefix("refIsShifted"));
-const refCurrentPage = inject<Readonly<Ref<string>>>(prefix("refCurrentPage"));
 const defaultBtn: SlotedButtonType = {
   value: props.value,
   label: props.label,
