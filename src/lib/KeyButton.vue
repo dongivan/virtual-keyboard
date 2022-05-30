@@ -128,7 +128,6 @@ import {
   Ref,
   ref,
   useAttrs,
-  useSlots,
   watch,
 } from "vue";
 import {
@@ -193,9 +192,6 @@ const props = withDefaults(defineProps<PropsType>(), {
   childActiveClass: "",
   config: undefined,
 });
-
-const slots = useSlots();
-console.log(props.value, slots.default?.());
 
 const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
@@ -361,12 +357,12 @@ const refPrimaryBtn = computed<SlotedButtonType>(() => {
   return defaultBtn;
 });
 const refVisibleChildrenBtns = computed(() => {
-  const children =
-    refPrimaryBtn.value.value == props.value
-      ? [...refChildrenBtns.value]
-      : refChildrenBtns.value.map((child) =>
-          child.value == refPrimaryBtn.value.value ? defaultBtn : child
-        );
+  const children = refChildrenBtns.value.filter(
+    (child) => child.value !== refPrimaryBtn.value.value
+  );
+  if (refPrimaryBtn.value.value != props.value) {
+    children.unshift(defaultBtn);
+  }
   if (refTouchableDevice.value && children.length > 0) {
     children.unshift(refPrimaryBtn.value);
   }
