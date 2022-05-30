@@ -422,7 +422,7 @@ watch(
       }
       computePosition(refButtonEle.value, refChildrenContainerEle.value, {
         middleware: [
-          offset({ alignmentAxis: refConfig.value.childrenXOffset || -4 }),
+          offset({ ...refConfig.value.childrenContainerOffset }),
           placeChildren(),
         ],
       }).then((result) => {

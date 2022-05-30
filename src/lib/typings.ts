@@ -11,11 +11,15 @@ type HasBadgeClass = {
 
 export type VirtualKeyboardConfig = {
   hideHasChildrenBadge?: boolean;
-  childrenXOffset?: number;
   defaultPageClass?: string;
   buttonClass?: ButtonClass & HasBadgeClass;
   childrenContainerClass?: string;
   childButtonClass?: ButtonClass;
+  childrenContainerOffset?: {
+    mainAxis?: number;
+    crossAxis?: number;
+    alignmentAxis?: number;
+  };
 };
 
 export type RegisterPageFunction = (
