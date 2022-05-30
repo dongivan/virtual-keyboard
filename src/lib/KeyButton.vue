@@ -47,6 +47,7 @@
           v-for="child of refVisibleChildrenBtns"
           :key="child.value"
           ref="refChildrenBtnEles"
+          class="absolute"
           :class="[
             refChildBtnClass,
             {
@@ -178,14 +179,13 @@ const props = withDefaults(defineProps<PropsType>(), {
   children: () => [],
   shiftIndex: 0,
   pageButton: false,
-  btnClass: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-4 rounded bg-gray-300",
-  hoverClass: "bg-blue-400",
+  btnClass: "",
+  hoverClass: "",
   focusClass: "",
-  activeClass: "bg-blue-500",
-  badgeClass:
-    "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
-  badgeColorClass: "border-blue-400",
-  childrenContainerClass: "absolute w-fit flex gap-1 p-1 box-content",
+  activeClass: "",
+  badgeClass: "",
+  badgeColorClass: "",
+  childrenContainerClass: "",
   childBtnClass: "",
   childHoverClass: "",
   childFocusClass: "",
@@ -468,22 +468,19 @@ const refChildBtnClass = computed(
 const refChildBtnHoverClass = computed(
   () =>
     props.childHoverClass ||
-    props.hoverClass ||
     refConfig.value.childButtonClass?.hover ||
-    ""
+    refBtnHoverClass.value
 );
 const refChildBtnActiveClass = computed(
   () =>
     props.childActiveClass ||
-    props.activeClass ||
     refConfig.value.childButtonClass?.active ||
-    ""
+    refBtnActiveClass.value
 );
 const refChildBtnFocusClass = computed(
   () =>
     props.childFocusClass ||
-    props.focusClass ||
     refConfig.value.childButtonClass?.focus ||
-    ""
+    refBtnFocusClass.value
 );
 </script>

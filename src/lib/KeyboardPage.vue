@@ -2,7 +2,7 @@
   <div
     v-show="refCurrentPage == name"
     class="w-full h-full"
-    :class="defaultClass"
+    :class="refDefaultClass"
   >
     <slot></slot>
   </div>
@@ -22,26 +22,24 @@ type PropsType = {
 const props = withDefaults(defineProps<PropsType>(), {
   name: "",
   default: false,
-  pageClass: "flex gap-1 flex-wrap",
+  pageClass: "",
   config: undefined,
 });
 
 const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
 );
-const refConfig = computed<VirtualKeyboardConfig>(() =>
-  !props.config && !refKeyboardConfig?.value
-    ? props.config
-    : {
-        ...useDefaultConfig(),
-        ...refKeyboardConfig?.value,
-        ...props.config,
-      }
-);
+const refConfig = computed<VirtualKeyboardConfig>(() => ({
+  ...useDefaultConfig(),
+  ...refKeyboardConfig?.value,
+  ...props.config,
+}));
 provide(prefix("refConfig"), readonly(refConfig));
 
 const attrs = useAttrs();
-const defaultClass = attrs.class ? "" : props.pageClass;
+const refDefaultClass = computed(() =>
+  attrs.class ? "" : props.pageClass || refConfig?.value.defaultPageClass || ""
+);
 
 const registerPage = inject<RegisterPageFunction>(prefix("registerPage"));
 watch(

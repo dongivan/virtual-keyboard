@@ -8,27 +8,29 @@
       <div v-else>Please press the virtual keyboard below:</div>
     </div>
     <VirtualKeyboard @key-pressed="(key) => (refKeyPressed = key)">
-      <KeyboardPage name="page-1" default>
-        <KeyButton value="__SHIFT__" label="shift" />
-        <KeyButton value="1">
-          <div>label 1</div>
+      <div class="flex flex-col gap-1">
+        <KeyboardPage name="page-1" default>
+          <KeyButton value="__SHIFT__" label="shift" />
+          <KeyButton value="1">
+            <div>label 1</div>
+          </KeyButton>
+          <KeyButton value="2" :children="['2a', '2b']">
+            <template #[`2a`]>2aa</template>
+            <template #[`2b`]>2bb</template>
+          </KeyButton>
+        </KeyboardPage>
+        <KeyboardPage name="page-2">
+          <KeyButton value="3" />
+          <KeyButton value="4" />
+        </KeyboardPage>
+        <KeyboardPage name="page-1">
+          <KeyButton value="5" />
+        </KeyboardPage>
+        <KeyButton value="page-1" page-button :children="['page-2']">
+          go page 1
+          <template #[`page-2`]> go page 2 </template>
         </KeyButton>
-        <KeyButton value="2" :children="['2a', '2b']">
-          <template #[`2a`]>2aa</template>
-          <template #[`2b`]>2bb</template>
-        </KeyButton>
-      </KeyboardPage>
-      <KeyboardPage name="page-2">
-        <KeyButton value="3" />
-        <KeyButton value="4" />
-      </KeyboardPage>
-      <KeyboardPage name="page-3">
-        <KeyButton value="5" />
-      </KeyboardPage>
-      <KeyButton value="page-1" page-button :children="['page-2', 'page-3']">
-        go page 1
-        <template #[`page-2`]> go page 2 </template>
-      </KeyButton>
+      </div>
     </VirtualKeyboard>
   </div>
 </template>
