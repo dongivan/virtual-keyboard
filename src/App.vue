@@ -23,6 +23,7 @@
         <KeyButton value="4" />
       </KeyboardPage>
       <KeyButton value="page-1" page-button :children="['page-2']">
+        go page 1
         <template #[`page-2`]> go page 2 </template>
       </KeyButton>
     </VirtualKeyboard>

@@ -30,7 +30,7 @@
       "
       :class="refBadgeClasses"
     ></div>
-    <slot>
+    <slot :name="refPrimaryBtn.slotName">
       {{ refPrimaryBtn.label || refPrimaryBtn.value }}
     </slot>
     <template v-if="refVisibleChildrenBtns.length > 0">
@@ -67,7 +67,7 @@
           @focusin.stop="handleFocusinChild(child.value, $event)"
           @focusout.stop="handleFocusoutChild"
         >
-          <slot :name="child.value">{{ child.label || child.value }}</slot>
+          <slot :name="child.slotName">{{ child.label || child.value }}</slot>
         </button>
       </div>
     </template>
@@ -128,6 +128,7 @@ import {
   Ref,
   ref,
   useAttrs,
+  useSlots,
   watch,
 } from "vue";
 import {
@@ -146,6 +147,10 @@ const refChildrenBtnEles = ref([]);
 type ButtonType = {
   value: string;
   label?: string;
+};
+
+type SlotedButtonType = ButtonType & {
+  slotName: string;
 };
 
 /* Vue 3.2 defineProps does not support union type ? */
@@ -188,6 +193,9 @@ const props = withDefaults(defineProps<PropsType>(), {
   childActiveClass: "",
   config: undefined,
 });
+
+const slots = useSlots();
+console.log(props.value, slots.default?.());
 
 const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
@@ -313,15 +321,21 @@ const refTouchableDevice = ref(false);
 watch(refIsMouseover, () => (refTouchableDevice.value = false));
 watch(refIsTouching, () => (refTouchableDevice.value = true));
 
-const parseButtonType: (btn: string | ButtonType) => ButtonType = (btn) =>
-  typeof btn == "string" ? { value: btn } : btn;
+const parseButtonType: (btn: string | ButtonType) => SlotedButtonType = (btn) =>
+  typeof btn == "string"
+    ? { value: btn, slotName: btn }
+    : { ...btn, slotName: btn.value };
 const refIsShifted = inject<Readonly<Ref<boolean>>>(prefix("refIsShifted"));
 const refCurrentPage = inject<Readonly<Ref<string>>>(prefix("refCurrentPage"));
-const defaultBtn = { value: props.value, label: props.label };
+const defaultBtn: SlotedButtonType = {
+  value: props.value,
+  label: props.label,
+  slotName: "default",
+};
 const refChildrenBtns = computed(() => {
   const filtered: string[] = [props.value];
   return props.children
-    .map<ButtonType>((child) => parseButtonType(child))
+    .map<SlotedButtonType>((child) => parseButtonType(child))
     .filter((child) => {
       if (filtered.includes(child.value)) {
         return false;
@@ -331,7 +345,7 @@ const refChildrenBtns = computed(() => {
       }
     });
 });
-const refPrimaryBtn = computed<ButtonType>(() => {
+const refPrimaryBtn = computed<SlotedButtonType>(() => {
   if (props.pageButton) {
     return (
       refChildrenBtns.value.find(
