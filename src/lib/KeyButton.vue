@@ -37,6 +37,7 @@
       <div
         v-show="refIsChildrenVisible"
         ref="refChildrenContainerEle"
+        class="absolute"
         :class="[
           refChildrenContainerClass,
           { 'flex-row-reverse': refReverseChildren },
@@ -47,7 +48,6 @@
           v-for="child of refVisibleChildrenBtns"
           :key="child.value"
           ref="refChildrenBtnEles"
-          class="absolute"
           :class="[
             refChildBtnClass,
             {
