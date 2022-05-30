@@ -43,9 +43,3 @@ import { ref } from "vue";
 
 const refKeyPressed = ref("");
 </script>
-
-<style lang="scss" scoped>
-:deep(.host-button.has-children::after) {
-  @apply border-r-blue-400;
-}
-</style>
