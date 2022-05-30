@@ -21,6 +21,7 @@ export function useDefaultConfig(): VirtualKeyboardConfig {
     childButtonClass: {},
     childrenContainerOffset: {
       alignmentAxis: 0,
+      mainAxis: 2,
     },
   };
 }

@@ -38,6 +38,11 @@
     <template v-if="refVisibleChildrenBtns.length > 0">
       <div
         v-show="refIsChildrenVisible"
+        class="absolute bg-transparent w-full left-0"
+        :style="refChildrenBridgeStyle"
+      ></div>
+      <div
+        v-show="refIsChildrenVisible"
         ref="refChildrenContainerEle"
         class="absolute"
         :class="[
@@ -245,6 +250,7 @@ const handleMouseenter = (evt: MouseEvent) => {
   }
 };
 const handleMouseleave = () => {
+  console.log("mouse leave");
   refIsMouseover.value = false;
 };
 
@@ -501,4 +507,12 @@ const refChildBtnFocusClass = computed(
     refConfig.value.childButtonClass?.focus ||
     refBtnFocusClass.value
 );
+
+const refChildrenBridgeStyle = computed(() => {
+  const height = refConfig?.value.childrenContainerOffset?.mainAxis || 0;
+  return {
+    height: `calc(50% + ${height}px)`,
+    top: `calc(-25% - ${height}px)`,
+  };
+});
 </script>
