@@ -34,7 +34,14 @@
         <KeyboardPage name="eng">
           <EnglishLayout />
         </KeyboardPage>
-        <KeyButton value="page-1" page-button :children="['page-2', 'eng']" />
+        <KeyboardPage name="num">
+          <NumberLayout />
+        </KeyboardPage>
+        <KeyButton
+          value="page-1"
+          page-button
+          :children="['page-2', 'eng', 'num']"
+        />
       </div>
     </VirtualKeyboard>
   </div>
@@ -46,6 +53,7 @@ import KeyboardPage from "./lib/KeyboardPage.vue";
 import KeyButton from "./lib/KeyButton.vue";
 import ShiftButton from "./lib/ShiftButton.vue";
 import EnglishLayout from "./lib/layouts/EnglishLayout.vue";
+import NumberLayout from "./lib/layouts/NumberLayout.vue";
 import { ref } from "vue";
 
 const refKeyPressed = ref("");
