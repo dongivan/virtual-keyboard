@@ -149,6 +149,7 @@ import {
 } from "./typings";
 import { computePosition } from "@floating-ui/dom";
 import { prefix, useDefaultConfig, mergeClasses } from "./utils";
+import mergeOptions from "merge-options";
 
 const refButtonEle = ref();
 const refChildrenContainerEle = ref();
@@ -206,11 +207,9 @@ const props = withDefaults(defineProps<PropsType>(), {
 const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
 );
-const refConfig = computed<VirtualKeyboardConfig>(() => ({
-  ...useDefaultConfig(),
-  ...refKeyboardConfig?.value,
-  ...props.config,
-}));
+const refConfig = computed<VirtualKeyboardConfig>(() =>
+  mergeOptions(useDefaultConfig(), refKeyboardConfig?.value, props.config)
+);
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
 const changePage = inject<ChangePageFunction>(prefix("changePage"));
@@ -250,7 +249,6 @@ const handleMouseenter = (evt: MouseEvent) => {
   }
 };
 const handleMouseleave = () => {
-  console.log("mouse leave");
   refIsMouseover.value = false;
 };
 

@@ -12,6 +12,7 @@
 import { computed, inject, provide, readonly, Ref, useAttrs, watch } from "vue";
 import { RegisterPageFunction, VirtualKeyboardConfig } from "./typings";
 import { prefix, useDefaultConfig } from "./utils";
+import mergeOptions from "merge-options";
 
 type PropsType = {
   name?: string;
@@ -29,11 +30,9 @@ const props = withDefaults(defineProps<PropsType>(), {
 const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
 );
-const refConfig = computed<VirtualKeyboardConfig>(() => ({
-  ...useDefaultConfig(),
-  ...refKeyboardConfig?.value,
-  ...props.config,
-}));
+const refConfig = computed<VirtualKeyboardConfig>(() =>
+  mergeOptions(useDefaultConfig(), refKeyboardConfig?.value, props.config)
+);
 provide(prefix("refConfig"), readonly(refConfig));
 
 const attrs = useAttrs();

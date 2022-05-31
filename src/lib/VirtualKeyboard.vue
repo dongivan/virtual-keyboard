@@ -14,6 +14,7 @@ import {
   VirtualKeyboardConfig,
 } from "./typings";
 import { prefix, useDefaultConfig } from "./utils";
+import mergeOptions from "merge-options";
 
 type PropsType = {
   config?: VirtualKeyboardConfig;
@@ -23,7 +24,7 @@ const props = withDefaults(defineProps<PropsType>(), {
 });
 
 const refConfig = computed<VirtualKeyboardConfig>(() =>
-  props.config ? { ...useDefaultConfig(), ...props.config } : props.config
+  props.config ? mergeOptions(useDefaultConfig(), props.config) : props.config
 );
 provide(prefix("refConfig"), readonly(refConfig));
 
