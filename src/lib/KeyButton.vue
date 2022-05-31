@@ -297,6 +297,7 @@ const handleMousedownChild = (value: string, evt: MouseEvent) => {
 };
 const handleMouseupChild = () => {
   refMousedownChildBtnValue.value = undefined;
+  refIsMouseover.value = false;
 };
 
 const refFocusedChildBtnValue: Ref<string | undefined> = ref(undefined);
