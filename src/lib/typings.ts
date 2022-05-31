@@ -1,19 +1,21 @@
+export type ClassName = string | string[];
+
 type ButtonClass = {
-  btn?: string;
-  hover?: string;
-  focus?: string;
-  active?: string;
+  btn?: ClassName;
+  hover?: ClassName;
+  focus?: ClassName;
+  active?: ClassName;
 };
 type HasBadgeClass = {
-  badge?: string;
-  badgeColor?: string;
+  badge?: ClassName;
+  badgeColor?: ClassName;
 };
 
 export type VirtualKeyboardConfig = {
   hideHasChildrenBadge?: boolean;
-  defaultPageClass?: string;
+  defaultPageClass?: ClassName;
   buttonClass?: ButtonClass & HasBadgeClass;
-  childrenContainerClass?: string;
+  childrenContainerClass?: ClassName;
   childButtonClass?: ButtonClass;
   childrenContainerOffset?: {
     mainAxis?: number;

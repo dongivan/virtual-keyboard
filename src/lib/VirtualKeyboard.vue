@@ -13,8 +13,7 @@ import {
   ShiftKeyboardFunction,
   VirtualKeyboardConfig,
 } from "./typings";
-import { prefix, useDefaultConfig } from "./utils";
-import mergeOptions from "merge-options";
+import { prefix, useDefaultConfig, mergeOptions } from "./utils";
 
 type PropsType = {
   config?: VirtualKeyboardConfig;
@@ -24,7 +23,7 @@ const props = withDefaults(defineProps<PropsType>(), {
 });
 
 const refConfig = computed<VirtualKeyboardConfig>(() =>
-  props.config ? mergeOptions(useDefaultConfig(), props.config) : props.config
+  mergeOptions(useDefaultConfig(), props.config)
 );
 provide(prefix("refConfig"), readonly(refConfig));
 

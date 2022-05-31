@@ -148,8 +148,13 @@ import {
   VirtualKeyboardConfig,
 } from "./typings";
 import { computePosition } from "@floating-ui/dom";
-import { prefix, useDefaultConfig, mergeVueBindedClasses } from "./utils";
-import mergeOptions from "merge-options";
+import {
+  prefix,
+  useDefaultConfig,
+  mergeVueBindedClasses,
+  mergeClasses,
+  mergeOptions,
+} from "./utils";
 
 const refButtonEle = ref();
 const refChildrenContainerEle = ref();
@@ -208,7 +213,7 @@ const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
 );
 const refConfig = computed<VirtualKeyboardConfig>(() =>
-  mergeOptions(useDefaultConfig(), refKeyboardConfig?.value, props.config)
+  mergeOptions(refKeyboardConfig?.value || useDefaultConfig(), props.config)
 );
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
@@ -458,52 +463,64 @@ watch(
 );
 
 const attrs = useAttrs();
-const refBtnClass = computed(
-  () =>
-    (attrs.class as string) ||
-    props.btnClass ||
+const refBtnClass = computed(() => {
+  return mergeClasses(
+    attrs.class as string,
+    props.btnClass,
     refConfig.value.buttonClass?.btn
+  );
+});
+const refBtnHoverClass = computed(() =>
+  mergeClasses(props.hoverClass, refConfig.value.buttonClass?.hover)
 );
-const refBtnHoverClass = computed(
-  () => props.hoverClass || refConfig.value.buttonClass?.hover || ""
+const refBtnActiveClass = computed(() =>
+  mergeClasses(props.activeClass, refConfig.value.buttonClass?.active)
 );
-const refBtnActiveClass = computed(
-  () => props.activeClass || refConfig.value.buttonClass?.active || ""
+const refBtnFocusClass = computed(() =>
+  mergeClasses(props.focusClass, refConfig.value.buttonClass?.focus)
 );
-const refBtnFocusClass = computed(
-  () => props.focusClass || refConfig.value.buttonClass?.focus || ""
+const refBadgeClasses = computed(() =>
+  mergeVueBindedClasses([
+    mergeClasses(
+      props.badgeColorClass,
+      refConfig.value.buttonClass?.badgeColor
+    ),
+    mergeClasses(props.badgeClass, refConfig.value.buttonClass?.badge),
+  ])
 );
-const refBadgeClasses = computed(() => [
-  props.badgeClass || refConfig.value.buttonClass?.badge,
-  props.badgeColorClass || refConfig.value.buttonClass?.badgeColor,
-]);
-const refChildrenContainerClass = computed(
-  () =>
-    props.childrenContainerClass || refConfig.value.childrenContainerClass || ""
+const refChildrenContainerClass = computed(() =>
+  mergeClasses(
+    props.childrenContainerClass,
+    refConfig.value.childrenContainerClass
+  )
 );
-const refChildBtnClass = computed(
-  () =>
-    props.childBtnClass ||
-    refConfig.value.childButtonClass?.btn ||
+const refChildBtnClass = computed(() =>
+  mergeClasses(
+    props.childBtnClass,
+    refConfig.value.childButtonClass?.btn,
     refBtnClass.value
+  )
 );
-const refChildBtnHoverClass = computed(
-  () =>
-    props.childHoverClass ||
-    refConfig.value.childButtonClass?.hover ||
+const refChildBtnHoverClass = computed(() =>
+  mergeClasses(
+    props.childHoverClass,
+    refConfig.value.childButtonClass?.hover,
     refBtnHoverClass.value
+  )
 );
-const refChildBtnActiveClass = computed(
-  () =>
-    props.childActiveClass ||
-    refConfig.value.childButtonClass?.active ||
+const refChildBtnActiveClass = computed(() =>
+  mergeClasses(
+    props.childActiveClass,
+    refConfig.value.childButtonClass?.active,
     refBtnActiveClass.value
+  )
 );
-const refChildBtnFocusClass = computed(
-  () =>
-    props.childFocusClass ||
-    refConfig.value.childButtonClass?.focus ||
+const refChildBtnFocusClass = computed(() =>
+  mergeClasses(
+    props.childFocusClass,
+    refConfig.value.childButtonClass?.focus,
     refBtnFocusClass.value
+  )
 );
 
 const refChildrenBridgeStyle = computed(() => {
