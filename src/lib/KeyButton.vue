@@ -9,7 +9,7 @@
         {
           [refBtnHoverClass]: refIsMouseover,
           [refBtnActiveClass]:
-            refIsTouching || (refIsMouseover && refIsMousedown),
+            refIsTouching || (refIsMouseover && refIsMousedown) || props.active,
           [refBtnFocusClass]: refIsFocused,
         },
       ])
@@ -177,6 +177,7 @@ type PropsType = {
   children?: (ButtonType | string)[];
   shiftIndex?: number;
   pageButton?: boolean;
+  active?: boolean;
   btnClass?: string;
   hoverClass?: string;
   focusClass?: string;
@@ -195,6 +196,7 @@ const props = withDefaults(defineProps<PropsType>(), {
   children: () => [],
   shiftIndex: 0,
   pageButton: false,
+  active: false,
   btnClass: "",
   hoverClass: "",
   focusClass: "",
