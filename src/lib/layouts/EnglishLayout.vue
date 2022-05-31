@@ -23,7 +23,7 @@ import KeyButton from "../KeyButton.vue";
 const config = {
   hideHasChildrenBadge: true,
   buttonClass: {
-    btn: "w-full min-w-[2rem] h-full min-h-[2rem] p-2 rounded bg-gray-200",
+    btn: ["!w-full !h-full"],
   },
   childrenContainerOffset: {
     alignmentAxis: 0,
