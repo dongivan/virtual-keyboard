@@ -4,7 +4,7 @@
     ref="refButtonEle"
     class="relative select-none"
     :class="
-      mergeClasses([
+      mergeVueBindedClasses([
         refBtnClass,
         {
           [refBtnHoverClass]: refIsMouseover,
@@ -56,7 +56,7 @@
           :key="child.value"
           ref="refChildrenBtnEles"
           :class="
-            mergeClasses([
+            mergeVueBindedClasses([
               refChildBtnClass,
               {
                 [refChildBtnHoverClass]:
@@ -148,7 +148,7 @@ import {
   VirtualKeyboardConfig,
 } from "./typings";
 import { computePosition } from "@floating-ui/dom";
-import { prefix, useDefaultConfig, mergeClasses } from "./utils";
+import { prefix, useDefaultConfig, mergeVueBindedClasses } from "./utils";
 import mergeOptions from "merge-options";
 
 const refButtonEle = ref();

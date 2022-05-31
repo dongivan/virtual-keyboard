@@ -26,7 +26,7 @@ export function useDefaultConfig(): VirtualKeyboardConfig {
   };
 }
 
-export function mergeClasses(
+export function mergeVueBindedClasses(
   classes:
     | undefined
     | string
@@ -35,19 +35,17 @@ export function mergeClasses(
 ): string {
   if (Array.isArray(classes)) {
     return twMerge(
-      ...(typeof classes == "string"
-        ? [classes]
-        : classes.map<string>((cls) =>
-            typeof cls == "string"
-              ? cls
-              : cls == undefined
-              ? ""
-              : Object.keys(cls)
-                  .filter((clsName) => cls[clsName])
-                  .join(" ")
-          ))
+      ...classes.map<string>((cls) =>
+        typeof cls == "string"
+          ? cls
+          : cls == undefined
+          ? ""
+          : Object.keys(cls)
+              .filter((clsName) => cls[clsName])
+              .join(" ")
+      )
     );
   } else {
-    return mergeClasses([classes]);
+    return mergeVueBindedClasses([classes]);
   }
 }
