@@ -13,6 +13,7 @@ export function useDefaultConfig(): VirtualKeyboardConfig {
       btn: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-2 rounded bg-gray-200",
       active: "bg-gray-400",
       hover: "bg-gray-300",
+      focus: "ring-2 ring-gray-100",
       badge:
         "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
       badgeColor: "border-blue-400",
