@@ -14,7 +14,7 @@
       <div class="flex flex-col gap-1">
         <div class="flex gap-1">
           <KeyboardPage name="page-1" default>
-            <KeyButton value="__SHIFT__" label="shift" />
+            <ShiftButton />
             <KeyButton value="1">
               <div>label 1</div>
             </KeyButton>
@@ -44,6 +44,7 @@
 import VirtualKeyboard from "./lib/VirtualKeyboard.vue";
 import KeyboardPage from "./lib/KeyboardPage.vue";
 import KeyButton from "./lib/KeyButton.vue";
+import ShiftButton from "./lib/ShiftButton.vue";
 import EnglishLayout from "./lib/layouts/EnglishLayout.vue";
 import { ref } from "vue";
 

@@ -10,7 +10,6 @@ type HasBadgeClass = {
   badge?: ClassName;
   badgeColor?: ClassName;
 };
-
 export type VirtualKeyboardConfig = {
   hideHasChildrenBadge?: boolean;
   defaultPageClass?: ClassName;
@@ -29,9 +28,6 @@ export type RegisterPageFunction = (
   isDefault: boolean,
   oldName?: string
 ) => void;
-
 export type ChangePageFunction = (page: string) => void;
-
 export type ShiftKeyboardFunction = () => void;
-
 export type EmitKeyPressedFunction = (keyName: string) => void;
