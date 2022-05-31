@@ -17,7 +17,7 @@ export function useDefaultConfig(): VirtualKeyboardConfig {
       badgeColor: "border-blue-400",
     },
     childrenContainerClass:
-      "w-max flex gap-1 p-1 border border-gray-400 rounded-md bg-gray-100",
+      "min-w-full w-max flex gap-1 p-1 border border-gray-400 rounded-md bg-gray-100",
     childButtonClass: {},
     childrenContainerOffset: {
       alignmentAxis: 0,
