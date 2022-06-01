@@ -15,8 +15,7 @@ export function useDefaultConfig(): VirtualKeyboardConfig {
       hover: "bg-gray-300",
       focus: "ring-2 ring-gray-100",
       badge:
-        "absolute top-0 right-0 w-0 h-0 rounded-tr border-l-transparent border-b-transparent border-[6px]",
-      badgeColor: "border-blue-400",
+        "absolute top-0 right-0 w-0 h-0 rounded-tr border-[6px] border-transparent border-t-blue-400 border-r-blue-400",
     },
     childrenContainerClass:
       "min-w-full w-max flex gap-1 p-1 border border-gray-400 rounded-md bg-gray-100",

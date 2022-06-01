@@ -8,7 +8,6 @@ type ButtonClass = {
 };
 type HasBadgeClass = {
   badge?: ClassName;
-  badgeColor?: ClassName;
 };
 export type VirtualKeyboardConfig = {
   hideHasChildrenBadge?: boolean;

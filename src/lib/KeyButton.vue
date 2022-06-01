@@ -457,10 +457,7 @@ const refBtnFocusClass = computed(() =>
   mergeClasses(refConfig.value.buttonClass?.focus)
 );
 const refBadgeClasses = computed(() =>
-  mergeVueBindedClasses([
-    mergeClasses(refConfig.value.buttonClass?.badgeColor),
-    mergeClasses(refConfig.value.buttonClass?.badge),
-  ])
+  mergeClasses(refConfig.value.buttonClass?.badge)
 );
 const refChildrenContainerClass = computed(() =>
   mergeClasses(refConfig.value.childrenContainerClass)
