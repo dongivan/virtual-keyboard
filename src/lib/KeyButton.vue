@@ -326,8 +326,8 @@ watch(refIsTouching, () => (refTouchableDevice.value = true));
 
 const parseButtonType: (btn: string | ButtonType) => SlotedButtonType = (btn) =>
   typeof btn == "string"
-    ? { value: btn, slotName: btn }
-    : { ...btn, slotName: btn.value };
+    ? { value: btn, slotName: `btn-${btn}` }
+    : { ...btn, slotName: `btn-${btn.value}` };
 const refIsShifted = inject<Readonly<Ref<boolean>>>(prefix("refIsShifted"));
 const defaultBtn: SlotedButtonType = {
   value: props.value,

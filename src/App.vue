@@ -19,8 +19,8 @@
               <div>label 1</div>
             </KeyButton>
             <KeyButton value="2" :children="['2a', '2b']">
-              <template #[`2a`]>2aa</template>
-              <template #[`2b`]>2bb</template>
+              <template #btn-2a>2aa</template>
+              <template #btn-2b>2bb</template>
             </KeyButton>
           </KeyboardPage>
           <KeyboardPage name="page-2">
