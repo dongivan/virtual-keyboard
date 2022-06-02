@@ -37,11 +37,7 @@
         <KeyboardPage name="num">
           <NumberLayout />
         </KeyboardPage>
-        <KeyButton
-          value="page-1"
-          page-button
-          :children="['page-2', 'eng', 'num']"
-        />
+        <PageButton value="page-1" :children="['page-2', 'eng', 'num']" />
       </div>
     </VirtualKeyboard>
   </div>
@@ -52,6 +48,7 @@ import VirtualKeyboard from "./lib/VirtualKeyboard.vue";
 import KeyboardPage from "./lib/KeyboardPage.vue";
 import KeyButton from "./lib/KeyButton.vue";
 import ShiftButton from "./lib/ShiftButton.vue";
+import PageButton from "./lib/PageButton.vue";
 import EnglishLayout from "./lib/layouts/EnglishLayout.vue";
 import NumberLayout from "./lib/layouts/NumberLayout.vue";
 import { ref } from "vue";

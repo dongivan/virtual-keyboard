@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <!-- set `touch-action: none;` to prevent from "[Intervention] Ignored ... cancelable=false ..." while click on gap of grid  -->
+  <div class="touch-none">
     <slot></slot>
   </div>
 </template>

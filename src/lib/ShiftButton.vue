@@ -1,15 +1,21 @@
 <template>
-  <KeyButton value="__SHIFT__" :active="refIsShifted" :config="config">
-    <slot :is-shifted="refIsShifted">
-      {{ props.label }}
-    </slot>
-  </KeyButton>
+  <GenericButton primary="__SHIFT__" :active="refIsShifted" :config="config">
+    <template #btn-__SHIFT__>
+      <slot :is-shifted="refIsShifted">
+        {{ props.label }}
+      </slot>
+    </template>
+  </GenericButton>
 </template>
 
 <script setup lang="ts">
-import { inject, Ref } from "vue";
-import KeyButton from "./KeyButton.vue";
-import { VirtualKeyboardConfig } from "./typings";
+import { inject, provide, Ref } from "vue";
+import GenericButton from "./GenericButton.vue";
+import {
+  EmitKeyPressedFunction,
+  ShiftKeyboardFunction,
+  VirtualKeyboardConfig,
+} from "./typings";
 import { prefix } from "./utils";
 
 type PropsType = {
@@ -22,4 +28,8 @@ const props = withDefaults(defineProps<PropsType>(), {
 });
 
 const refIsShifted = inject<Readonly<Ref<boolean>>>(prefix("refIsShifted"));
+const shiftKeyboard = inject<ShiftKeyboardFunction>(prefix("shiftKeyboard"));
+provide<EmitKeyPressedFunction>(prefix("emitKeyPressed"), () => {
+  shiftKeyboard?.();
+});
 </script>
