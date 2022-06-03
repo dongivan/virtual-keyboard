@@ -360,7 +360,7 @@ watch(
 
 const attrs = useAttrs();
 const refBtnClass = computed(() => {
-  return mergeClasses(attrs.class as string, refConfig.value.buttonClass?.btn);
+  return mergeClasses(refConfig.value.buttonClass?.btn, attrs.class as string);
 });
 const refBtnHoverClass = computed(() =>
   mergeClasses(refConfig.value.buttonClass?.hover)
@@ -378,19 +378,19 @@ const refChildrenContainerClass = computed(() =>
   mergeClasses(refConfig.value.childrenContainerClass)
 );
 const refChildBtnClass = computed(() =>
-  mergeClasses(refConfig.value.childButtonClass?.btn, refBtnClass.value)
+  mergeClasses(refBtnClass.value, refConfig.value.childButtonClass?.btn)
 );
 const refChildBtnHoverClass = computed(() =>
-  mergeClasses(refConfig.value.childButtonClass?.hover, refBtnHoverClass.value)
+  mergeClasses(refBtnHoverClass.value, refConfig.value.childButtonClass?.hover)
 );
 const refChildBtnActiveClass = computed(() =>
   mergeClasses(
-    refConfig.value.childButtonClass?.active,
-    refBtnActiveClass.value
+    refBtnActiveClass.value,
+    refConfig.value.childButtonClass?.active
   )
 );
 const refChildBtnFocusClass = computed(() =>
-  mergeClasses(refConfig.value.childButtonClass?.focus, refBtnFocusClass.value)
+  mergeClasses(refBtnFocusClass.value, refConfig.value.childButtonClass?.focus)
 );
 
 const refChildrenBridgeStyle = computed(() => {

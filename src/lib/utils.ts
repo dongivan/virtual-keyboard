@@ -89,6 +89,7 @@ export function mergeVueBindedClasses(
 }
 
 export function mergeClasses(...classes: (ClassName | undefined)[]): string {
+  classes.reverse();
   const baseIndex = classes.findIndex((cls) => typeof cls == "string" && !!cls);
   return twMerge(
     (classes[baseIndex] as string) || "",
