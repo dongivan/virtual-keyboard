@@ -3,6 +3,7 @@
     :primary="refPrimaryBtn.value"
     :children="refCurrentChildrenBtn.map < string > ((btn) => btn.value)"
     :active="refIsActive"
+    :badge="badge"
     :config="props.config"
   >
     <template #[slot(props.value)]>
@@ -36,11 +37,13 @@ type PropsType = {
   value: string | ButtonType;
   label?: string;
   children?: (string | ButtonType)[];
+  badge?: "auto" | "hide" | "triangle" | "slot";
   config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   label: "",
   children: () => [],
+  badge: "auto",
   config: undefined,
 });
 const defaultBtn = {

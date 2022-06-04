@@ -28,10 +28,17 @@
       v-if="
         props.children.length > 0 &&
         !refIsChildrenVisible &&
-        !refConfig.hideHasChildrenBadge
+        props.badge != 'hide'
       "
       :class="refBadgeClasses"
-    ></div>
+    >
+      <slot v-if="refBadgeType == 'slot'" name="badge">
+        <slot
+          v-if="props.children[0] !== undefined"
+          :name="slot(props.children[0])"
+        ></slot>
+      </slot>
+    </div>
     <slot :name="slot(props.primary)"></slot>
     <template v-if="refVisibleChildren.length > 0">
       <div
@@ -135,6 +142,7 @@ import {
   Ref,
   ref,
   useAttrs,
+  useSlots,
   watch,
 } from "vue";
 import { EmitKeyPressedFunction, VirtualKeyboardConfig } from "./typings";
@@ -158,11 +166,13 @@ type PropsType = {
   primary: string;
   children?: string[];
   active?: boolean;
+  badge?: "auto" | "hide" | "triangle" | "slot";
   config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   children: () => [],
   active: false,
+  badge: "auto",
   config: undefined,
 });
 
@@ -359,6 +369,7 @@ watch(
 );
 
 const attrs = useAttrs();
+const slots = useSlots();
 const refBtnClass = computed(() => {
   return mergeClasses(refConfig.value.buttonClass?.btn, attrs.class as string);
 });
@@ -371,8 +382,22 @@ const refBtnActiveClass = computed(() =>
 const refBtnFocusClass = computed(() =>
   mergeClasses(refConfig.value.buttonClass?.focus)
 );
+const refBadgeType = computed(() =>
+  props.badge == "auto"
+    ? !!slots.badge || props.children.length == 1
+      ? "slot"
+      : "triangle"
+    : props.badge
+);
 const refBadgeClasses = computed(() =>
-  mergeClasses(refConfig.value.buttonClass?.badge)
+  props.badge == "hide"
+    ? ""
+    : mergeClasses(
+        "absolute top-0 right-0",
+        refBadgeType.value == "slot"
+          ? refConfig.value.buttonClass?.slotBadge
+          : refConfig.value.buttonClass?.badge
+      )
 );
 const refChildrenContainerClass = computed(() =>
   mergeClasses(refConfig.value.childrenContainerClass)

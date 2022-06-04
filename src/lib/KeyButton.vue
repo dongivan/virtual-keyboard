@@ -3,8 +3,12 @@
     :primary="refPrimaryBtn.value"
     :children="refCurrentChildrenBtn.map < string > ((btn) => btn.value)"
     :active="active"
+    :badge="badge"
     :config="props.config"
   >
+    <template v-if="$slots.badge" #badge>
+      <slot name="badge"></slot>
+    </template>
     <template #[slot(props.value)]>
       <slot>{{ props.label || props.value }}</slot>
     </template>
@@ -28,6 +32,7 @@ type PropsType = {
   children?: (string | ButtonType)[];
   shiftIndex?: number;
   active?: boolean;
+  badge?: "auto" | "hide" | "triangle" | "slot";
   config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
@@ -35,6 +40,7 @@ const props = withDefaults(defineProps<PropsType>(), {
   children: () => [],
   shiftIndex: 0,
   active: false,
+  badge: "auto",
   config: undefined,
 });
 const defaultBtn = {

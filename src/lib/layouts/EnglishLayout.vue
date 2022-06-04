@@ -5,6 +5,7 @@
       :key="key"
       :value="key"
       :children="[key.toUpperCase()]"
+      badge="hide"
       :config="config"
       :style="{ gridColumnEnd: 'span 2' }"
     ></KeyButton>
@@ -19,7 +20,6 @@ import KeyButton from "../KeyButton.vue";
 import ShiftButton from "../ShiftButton.vue";
 
 const config = {
-  hideHasChildrenBadge: true,
   buttonClass: {
     btn: ["!w-full !h-full"],
   },
