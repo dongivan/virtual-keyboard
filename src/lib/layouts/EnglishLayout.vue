@@ -10,8 +10,11 @@
       :style="{ gridColumnEnd: 'span 2' }"
     ></KeyButton>
     <div class="col-start-1 col-end-2 row-start-2 row-end-3" />
-    <div class="col-start-1 col-end-3 row-start-3 row-end-4" />
-    <ShiftButton :style="{ gridColumnEnd: 'span 3', width: '100%' }" />
+    <div class="col-start-1 col-end-3 row-start-3 row-end-4">
+      <slot name="left-bottom"></slot>
+    </div>
+    <ShiftButton :style="{ gridColumnEnd: 'span 2', width: '100%' }" />
+    <slot name="right-bottom"></slot>
   </div>
 </template>
 

@@ -6,7 +6,10 @@
       :value="key"
       :config="config"
     ></KeyButton>
-    <div class="col-start-1 col-end-2 row-start-4 row-end-5" />
+    <div class="col-start-1 col-end-2 row-start-4 row-end-5">
+      <slot name="left-bottom"></slot>
+    </div>
+    <slot name="right-bottom"></slot>
   </div>
 </template>
 
