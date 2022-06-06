@@ -37,7 +37,12 @@
         <KeyboardPage name="num">
           <NumberLayout />
         </KeyboardPage>
-        <PageButton value="page-1" :children="['page-2', 'eng', 'num']" />
+        <KeyboardPage name="cv">
+          <ChineseProvinceLayout order="geo" />
+        </KeyboardPage>
+        <PageButton value="page-1" :children="['page-2', 'eng', 'num', 'cv']">
+          <template #btn-cv>车</template>
+        </PageButton>
       </div>
     </VirtualKeyboard>
   </div>
@@ -52,6 +57,7 @@ import PageButton from "./lib/PageButton.vue";
 import EnglishLayout from "./lib/layouts/EnglishLayout.vue";
 import NumberLayout from "./lib/layouts/NumberLayout.vue";
 import { ref } from "vue";
+import ChineseProvinceLayout from "./lib/layouts/ChineseProvinceLayout.vue";
 
 const refKeyPressed = ref("");
 </script>
