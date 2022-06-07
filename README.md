@@ -7,7 +7,24 @@ A virtual keyboard based on Vue 3.2 (and tailwindcss & floating ui).
 npm install @dongivan/virtual-keyboard --save
 ```
 
-# Usage
+# Styles
+## With tailwindcss
+Set `content` in your `tailwind.config.ts`:
+```ts
+module.export = {
+  /* ... */
+  content: [
+    /* ... */
+    "./node_modules/@dongivan/virtual-keyboard/**/*.js",
+  ]
+  /* ... */
+}
+```
+## Without tailwindcss
+```ts
+import "@dongivan/virtual-keyboard/style.css";
+```
+# Components Usage
 Just import and use it in your template.
 ```html
 <template>
