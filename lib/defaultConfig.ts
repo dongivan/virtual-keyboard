@@ -3,7 +3,7 @@ import { VirtualKeyboardConfig } from "./typings";
 const defaultConfig: VirtualKeyboardConfig = {
   pageClass: "flex gap-1 flex-wrap",
   buttonClass: {
-    btn: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-2 rounded bg-gray-200",
+    btn: "w-fit min-w-[2rem] h-fit min-h-[2rem] p-2 rounded border-0 bg-gray-200",
     active: "bg-gray-400",
     hover: "bg-gray-300",
     focus: "ring-2 ring-gray-100",

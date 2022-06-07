@@ -8,7 +8,7 @@
       <div v-else>Please press the virtual keyboard below:</div>
     </div>
     <VirtualKeyboard
-      class="w-full border rounded border-gray-600 p-2"
+      class="w-full border border-solid rounded border-gray-600 p-2"
       @key-pressed="(key) => (refKeyPressed = key)"
     >
       <div class="flex flex-col gap-1">
@@ -49,15 +49,17 @@
 </template>
 
 <script setup lang="ts">
-import VirtualKeyboard from "./lib/VirtualKeyboard.vue";
-import KeyboardPage from "./lib/KeyboardPage.vue";
-import KeyButton from "./lib/KeyButton.vue";
-import ShiftButton from "./lib/ShiftButton.vue";
-import PageButton from "./lib/PageButton.vue";
-import EnglishLayout from "./lib/layouts/EnglishLayout.vue";
-import NumberLayout from "./lib/layouts/NumberLayout.vue";
+import {
+  VirtualKeyboard,
+  KeyboardPage,
+  KeyButton,
+  ShiftButton,
+  PageButton,
+} from "../lib";
+import EnglishLayout from "../lib/layouts/EnglishLayout.vue";
+import NumberLayout from "../lib/layouts/NumberLayout.vue";
+import ChineseProvinceLayout from "../lib/layouts/ChineseProvinceLayout.vue";
 import { ref } from "vue";
-import ChineseProvinceLayout from "./lib/layouts/ChineseProvinceLayout.vue";
 
 const refKeyPressed = ref("");
 </script>
