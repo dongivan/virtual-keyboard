@@ -1,10 +1,25 @@
 {
-  "name": "virtual-keyboard",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@dongivan/virtual-keyboard",
+  "private": false,
+  "version": "0.1.0",
+  "description": "A virtual keyboard based on Vue 3.2 (and tailwindcss & floating ui).",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/lib.umd.js",
+  "module": "./dist/lib.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/lib.es.js",
+      "require": "./dist/lib.umd.js"
+    },
+    "./default.css": "./dist/style.css"
+  },
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vite build && vue-tsc --emitDeclarationOnly && rimraf dist/src && move dist/lib dist/types",
+    "postbuild": "npx tailwind -c tailwind.config.js -i src/assets/tailwind.css -o dist/style.css",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +30,7 @@
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.6",
+    "@types/node": "^17.0.40",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/parser": "^5.22.0",
     "@vitejs/plugin-vue": "^2.3.3",
@@ -33,5 +49,11 @@
     "vite-plugin-eslint": "^1.6.1",
     "vue-cli-plugin-tailwind": "^3.0.0",
     "vue-tsc": "^0.34.7"
-  }
+  },
+  "keywords": [
+    "virtual keyboard",
+    "vue"
+  ],
+  "author": "Ivan Dong",
+  "license": "MIT"
 }
