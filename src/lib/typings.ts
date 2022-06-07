@@ -15,7 +15,7 @@ type HasBadgeClass = {
   slotBadge?: ClassName;
 };
 export type VirtualKeyboardConfig = {
-  defaultPageClass?: ClassName;
+  pageClass?: ClassName;
   buttonClass?: ButtonClass & HasBadgeClass;
   childrenContainerClass?: ClassName;
   childButtonClass?: ButtonClass;

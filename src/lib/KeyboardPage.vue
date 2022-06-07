@@ -10,13 +10,17 @@
 
 <script setup lang="ts">
 import { computed, inject, provide, readonly, Ref, useAttrs, watch } from "vue";
-import { RegisterPageFunction, VirtualKeyboardConfig } from "./typings";
-import { prefix, useDefaultConfig, mergeOptions } from "./utils";
+import {
+  ClassName,
+  RegisterPageFunction,
+  VirtualKeyboardConfig,
+} from "./typings";
+import { prefix, useDefaultConfig, mergeOptions, mergeClasses } from "./utils";
 
 type PropsType = {
   name?: string;
   default?: boolean;
-  pageClass?: string;
+  pageClass?: ClassName;
   config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
@@ -36,7 +40,11 @@ provide(prefix("refConfig"), readonly(refConfig));
 
 const attrs = useAttrs();
 const refDefaultClass = computed(() =>
-  attrs.class ? "" : props.pageClass || refConfig?.value.defaultPageClass || ""
+  mergeClasses(
+    refConfig?.value.pageClass,
+    props.pageClass,
+    attrs.class as string
+  )
 );
 
 const registerPage = inject<RegisterPageFunction>(prefix("registerPage"));
