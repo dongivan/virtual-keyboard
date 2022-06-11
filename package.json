@@ -1,7 +1,7 @@
 {
   "name": "@dongivan/virtual-keyboard",
   "private": false,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A virtual keyboard based on Vue 3.2 (and tailwindcss & floating ui).",
   "files": [
     "dist"
