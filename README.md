@@ -22,7 +22,7 @@ module.export = {
 ```
 ## Without tailwindcss
 ```ts
-import "@dongivan/virtual-keyboard/style.css";
+import "@dongivan/virtual-keyboard/default.css";
 ```
 # Components Usage
 Just import and use it in your template.
