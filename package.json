@@ -20,6 +20,7 @@
     "dev": "vite",
     "build": "vite build && vue-tsc --emitDeclarationOnly && rimraf dist/src && move dist/lib dist/types",
     "postbuild": "npx tailwind -c tailwind.config.js -i src/assets/tailwind.css -o dist/style.css",
+    "analyze": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "eslint-plugin-vue": "^8.7.1",
     "postcss": "^8.4.14",
     "prettier": "^2.4.1",
+    "rollup-plugin-visualizer": "^5.6.0",
     "sass": "^1.51.0",
     "tailwindcss": "^3",
     "typescript": "~4.5.5",
