@@ -15,7 +15,7 @@ import {
   RegisterPageFunction,
   VirtualKeyboardConfig,
 } from "./typings";
-import { prefix, useDefaultConfig, mergeOptions, mergeClasses } from "./utils";
+import { prefix, useDefaultConfig, mergeConfigs, mergeClasses } from "./utils";
 
 type PropsType = {
   name?: string;
@@ -34,7 +34,7 @@ const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
 );
 const refConfig = computed<VirtualKeyboardConfig>(() =>
-  mergeOptions(refKeyboardConfig?.value || useDefaultConfig(), props.config)
+  mergeConfigs(refKeyboardConfig?.value || useDefaultConfig(), props.config)
 );
 provide(prefix("refConfig"), readonly(refConfig));
 

@@ -152,7 +152,7 @@ import {
   useDefaultConfig,
   mergeVueBindedClasses,
   mergeClasses,
-  mergeOptions,
+  mergeConfigs,
   slot,
 } from "./utils";
 
@@ -180,7 +180,7 @@ const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
   prefix("refConfig")
 );
 const refConfig = computed<VirtualKeyboardConfig>(() =>
-  mergeOptions(refKeyboardConfig?.value || useDefaultConfig(), props.config)
+  mergeConfigs(refKeyboardConfig?.value || useDefaultConfig(), props.config)
 );
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));

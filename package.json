@@ -25,12 +25,10 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^0.5.1",
-    "lodash-es": "^4.17.21",
     "tailwind-merge": "^1.2.1",
     "vue": "^3.2.25"
   },
   "devDependencies": {
-    "@types/lodash-es": "^4.17.6",
     "@types/node": "^17.0.40",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/parser": "^5.22.0",

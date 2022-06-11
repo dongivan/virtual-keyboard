@@ -1,6 +1,5 @@
 import { twMerge } from "tailwind-merge";
 import { VirtualKeyboardConfig, ClassName, ButtonType } from "./typings";
-import { mergeWith } from "lodash-es";
 import defaultConfig from "./defaultConfig";
 
 export function prefix(str: string) {
@@ -25,27 +24,36 @@ export function slot(btn: string | ButtonType): string {
   return `btn-${typeof btn == "string" ? btn : btn.value}`;
 }
 
-export function mergeOptions(
+function mergeTwoConfigs(
+  config1: Record<string, unknown>,
+  config2: Record<string, unknown>
+): Record<string, unknown> {
+  const result = JSON.parse(JSON.stringify(config1 || {})) as Record<
+    string,
+    unknown
+  >;
+  Object.keys(config2 || {}).forEach((key) => {
+    const value = config2[key];
+    if (Array.isArray(value)) {
+      result[key] = Array.isArray(result[key])
+        ? [...(result[key] as Array<unknown>), ...(value as Array<unknown>)]
+        : [result[key], ...(value as Array<unknown>)];
+    } else if (typeof value == "object" && typeof result[key] == "object") {
+      result[key] = mergeTwoConfigs(
+        result[key] as Record<string, unknown>,
+        value as Record<string, unknown>
+      );
+    } else {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+
+export function mergeConfigs(
   ...args: Record<string, unknown>[]
 ): Record<string, unknown> {
-  return args.reduce(
-    (prev, next) =>
-      mergeWith(prev, next, (obj, src) => {
-        if (obj == undefined) {
-          return;
-        }
-        if (Array.isArray(obj)) {
-          if (Array.isArray(src)) {
-            return obj.concat(...src);
-          } else {
-            return [src];
-          }
-        } else if (Array.isArray(src)) {
-          return [obj, ...src];
-        }
-      }),
-    {}
-  );
+  return args.reduce((prev, next) => mergeTwoConfigs(prev, next), {});
 }
 
 export function mergeVueBindedClasses(
