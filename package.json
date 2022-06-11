@@ -1,7 +1,7 @@
 {
-  "name": "@dongyifan/virtual-keyboard",
+  "name": "@dongivan/virtual-keyboard",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A virtual keyboard based on Vue 3.2 (and tailwindcss & floating ui).",
   "files": [
     "dist"
@@ -55,5 +55,19 @@
     "vue"
   ],
   "author": "Ivan Dong",
-  "license": "MIT"
+  "license": "MIT",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dongivan/virtual-keyboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dongivan/virtual-keyboard/issues"
+  },
+  "homepage": "https://github.com/dongivan/virtual-keyboard#readme"
 }
