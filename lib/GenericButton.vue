@@ -1,7 +1,7 @@
 <template>
   <button
     ref="refButtonEle"
-    class="relative select-none"
+    class="vk-btn-default"
     :class="refBtnCss"
     @mouseenter="handleMouseenter"
     @mouseleave="handleMouseleave"
@@ -32,13 +32,13 @@
     <template v-if="refVisibleChildren.length > 0">
       <div
         v-show="refIsChildrenVisible"
-        class="absolute bg-transparent w-full left-0"
+        class="vk-btn-bridge"
         :style="refChildrenBridgeStyle"
       ></div>
       <div
         v-show="refIsChildrenVisible"
         ref="refChildrenContainerEle"
-        class="absolute"
+        class="vk-btn-children-container"
         :class="[
           refChildrenContainerCss,
           { 'flex-row-reverse': refReverseChildren },
@@ -457,3 +457,15 @@ const refChildrenBridgeStyle = computed(() => {
   };
 });
 </script>
+
+<style scoped>
+.vk-btn-default {
+  @apply relative select-none;
+}
+.vk-btn-bridge {
+  @apply absolute bg-transparent w-full left-0;
+}
+.vk-btn-children-container {
+  @apply absolute;
+}
+</style>
