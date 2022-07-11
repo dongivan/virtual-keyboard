@@ -4,7 +4,9 @@
       v-for="key of refNumbers.split('')"
       :key="key"
       :value="key"
-      :config="config"
+      :css="{
+        common: 'vk-btn !w-full !h-full',
+      }"
     ></KeyButton>
     <div class="col-start-1 col-end-2 row-start-4 row-end-5">
       <slot name="left-bottom"></slot>
@@ -23,12 +25,6 @@ type PropsType = {
 const props = withDefaults(defineProps<PropsType>(), {
   mode: "mobilephone",
 });
-
-const config = {
-  buttonClass: {
-    btn: ["!w-full !h-full"],
-  },
-};
 
 const refNumbers = ref("1234567890");
 const random: () => string = () => {

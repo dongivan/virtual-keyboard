@@ -4,7 +4,6 @@
     :children="refCurrentChildrenBtn.map < string > ((btn) => btn.value)"
     :active="refIsActive"
     :badge="badge"
-    :config="props.config"
   >
     <template #[slot(props.value)]>
       <slot :is-current="props.value == refCurrentPage">{{
@@ -26,7 +25,6 @@
 import { computed, inject, provide, Ref } from "vue";
 import GenericButton from "./GenericButton.vue";
 import {
-  VirtualKeyboardConfig,
   ButtonType,
   EmitKeyPressedFunction,
   ChangePageFunction,
@@ -38,13 +36,11 @@ type PropsType = {
   label?: string;
   children?: (string | ButtonType)[];
   badge?: "auto" | "hide" | "triangle" | "slot";
-  config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   label: "",
   children: () => [],
   badge: "auto",
-  config: undefined,
 });
 const defaultBtn = {
   ...parseButtonType(props.value),

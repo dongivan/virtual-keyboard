@@ -4,7 +4,9 @@
       v-for="key of refProvinces"
       :key="key"
       :value="key"
-      :config="config"
+      :css="{
+        common: 'vk-btn !w-full !h-full',
+      }"
     ></KeyButton>
     <div
       v-if="$slots['left-bottom']"
@@ -30,12 +32,6 @@ const props = withDefaults(defineProps<PropsType>(), {
 const provinces = {
   py: "澳川鄂甘赣港桂贵黑沪吉冀津晋京辽鲁蒙闽宁青琼陕苏台皖湘新渝豫粤云藏浙",
   geo: "新甘蒙宁陕晋黑吉辽青川渝豫鄂京津冀鲁藏云贵湘皖赣苏浙沪桂琼粤闽澳港台",
-};
-
-const config = {
-  buttonClass: {
-    btn: ["!w-full !h-full"],
-  },
 };
 
 const refProvinces = computed(() => {

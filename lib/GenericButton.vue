@@ -1,19 +1,8 @@
 <template>
   <button
-    v-bind="{ ...$attrs, class: '' }"
     ref="refButtonEle"
     class="relative select-none"
-    :class="
-      mergeVueBindedClasses([
-        refBtnClass,
-        {
-          [refBtnHoverClass]: refIsMouseover,
-          [refBtnActiveClass]:
-            refIsTouching || (refIsMouseover && refIsMousedown) || props.active,
-          [refBtnFocusClass]: refIsFocused,
-        },
-      ])
-    "
+    :class="refBtnCss"
     @mouseenter="handleMouseenter"
     @mouseleave="handleMouseleave"
     @mousedown="handleMousedown"
@@ -30,7 +19,7 @@
         !refIsChildrenVisible &&
         props.badge != 'hide'
       "
-      :class="refBadgeClasses"
+      :class="refBadgeCss"
     >
       <slot v-if="refBadgeType == 'slot'" name="badge">
         <slot
@@ -51,7 +40,7 @@
         ref="refChildrenContainerEle"
         class="absolute"
         :class="[
-          refChildrenContainerClass,
+          refChildrenContainerCss,
           { 'flex-row-reverse': refReverseChildren },
         ]"
         :style="refChildrenPositionStyle"
@@ -60,18 +49,7 @@
           v-for="child of refVisibleChildren"
           :key="child"
           ref="refChildrenBtnEles"
-          :class="
-            mergeVueBindedClasses([
-              refChildBtnClass,
-              {
-                [refChildBtnHoverClass]: refMouseoverChild == child,
-                [refChildBtnActiveClass]:
-                  refTouchmoveChild == child ||
-                  (refMouseoverChild == child && refMousedownChild == child),
-                [refChildBtnFocusClass]: refFocusedChild == child,
-              },
-            ])
-          "
+          :class="refChildrenBtnCss(child)"
           :data-vk-btn-value="child"
           @click.stop="handleClick(child, false)"
           @mouseenter="handleMouseenterChild(child, $event)"
@@ -90,8 +68,68 @@
 
 <script lang="ts">
 import { detectOverflow, Middleware, offset } from "@floating-ui/dom";
-export default {
-  inheritAttrs: false,
+export default {};
+
+type BadgeType = {
+  common?: string;
+  hide?: string;
+  triangle?: string;
+  slot?: string;
+};
+type ButtonType = {
+  common?: string;
+  default?: string;
+  active?: string;
+  hover?: string;
+  focus?: string;
+};
+type GenericButtonType = ButtonType & {
+  badge?: BadgeType;
+  children?: ButtonType & {
+    container?: string;
+  };
+};
+
+const deepAssign: (
+  o: Record<string, unknown>,
+  p: Record<string, unknown>
+) => Record<string, unknown> = (o, p) => {
+  Object.keys(p).forEach((k) => {
+    if (typeof p[k] == "object") {
+      if (typeof o[k] !== "object") {
+        o[k] = {};
+      }
+      deepAssign(
+        o[k] as Record<string, unknown>,
+        p[k] as Record<string, unknown>
+      );
+    } else {
+      o[k] = p[k];
+    }
+  });
+  return o;
+};
+
+const parseButtonCss: (css: GenericButtonType) => GenericButtonType = (css) => {
+  return deepAssign(
+    {
+      common: "vk-btn",
+      default: "default",
+      active: "active",
+      hover: "hover",
+      focus: "focus",
+      badge: {
+        common: "vk-btn-badge",
+        hide: "hide",
+        triangle: "triangle",
+        slot: "slot",
+      },
+      children: {
+        container: "vk-btn-children",
+      },
+    },
+    css
+  ) as GenericButtonType;
 };
 
 const placeChildren = (): Middleware => ({
@@ -141,47 +179,44 @@ import {
   reactive,
   Ref,
   ref,
-  useAttrs,
   useSlots,
   watch,
 } from "vue";
-import { EmitKeyPressedFunction, VirtualKeyboardConfig } from "./typings";
+import { EmitKeyPressedFunction } from "./typings";
 import { computePosition } from "@floating-ui/dom";
-import {
-  prefix,
-  useDefaultConfig,
-  mergeVueBindedClasses,
-  mergeClasses,
-  mergeConfigs,
-  slot,
-} from "./utils";
+import { prefix, slot } from "./utils";
 
 const refButtonEle = ref();
 const refChildrenContainerEle = ref();
 const refChildrenBtnEles = ref([]);
 
-/* Vue 3.2 defineProps does not support union type ? */
-/* type PropsType = ButtonType & { */
 type PropsType = {
   primary: string;
   children?: string[];
   active?: boolean;
   badge?: "auto" | "hide" | "triangle" | "slot";
-  config?: VirtualKeyboardConfig;
+  css?: GenericButtonType;
+  childrenOffset?: {
+    alignmentAxis: number;
+    mainAxis: number;
+    crossAxis: number;
+  };
 };
 const props = withDefaults(defineProps<PropsType>(), {
   children: () => [],
   active: false,
   badge: "auto",
-  config: undefined,
+  css: () => {
+    return parseButtonCss({});
+  },
+  childrenOffset: () => ({
+    alignmentAxis: 0,
+    crossAxis: 0,
+    mainAxis: 2,
+  }),
 });
 
-const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
-  prefix("refConfig")
-);
-const refConfig = computed<VirtualKeyboardConfig>(() =>
-  mergeConfigs(refKeyboardConfig?.value || useDefaultConfig(), props.config)
-);
+const parsedCss = parseButtonCss(props.css);
 
 const emitClicked = inject<EmitKeyPressedFunction>(prefix("emitKeyPressed"));
 
@@ -283,11 +318,10 @@ const handleTouchend = () => {
   );
   refTouchmoveChild.value = "";
 };
-const refIsChildrenVisible = computed(() => {
-  return (
+const refIsChildrenVisible = computed(
+  () =>
     props.children.length > 0 && (refIsMouseover.value || refIsTouching.value)
-  );
-});
+);
 
 const refTouchableDevice = ref(false);
 watch(refIsMouseover, () => (refTouchableDevice.value = false));
@@ -352,10 +386,7 @@ watch(
         return;
       }
       computePosition(refButtonEle.value, refChildrenContainerEle.value, {
-        middleware: [
-          offset({ ...refConfig.value.childrenContainerOffset }),
-          placeChildren(),
-        ],
+        middleware: [offset({ ...props.childrenOffset }), placeChildren()],
       }).then((result) => {
         refReverseChildren.value = result.middlewareData.placeChildren.reversed;
         refChildrenPositionStyle.value = {
@@ -368,20 +399,43 @@ watch(
   { immediate: true }
 );
 
-const attrs = useAttrs();
 const slots = useSlots();
-const refBtnClass = computed(() => {
-  return mergeClasses(refConfig.value.buttonClass?.btn, attrs.class as string);
+const refBtnCss = computed(() => {
+  const css = [parsedCss.common];
+  if (refIsMouseover.value) {
+    if (refIsMousedown.value) {
+      css.push(parsedCss.active);
+    } else {
+      css.push(parsedCss.hover);
+    }
+  } else if (refIsFocused.value) {
+    css.push(parsedCss.focus);
+  } else if (refIsTouching.value || props.active) {
+    css.push(parsedCss.active);
+  } else {
+    css.push(parsedCss.default);
+  }
+  return css.join(" ");
 });
-const refBtnHoverClass = computed(() =>
-  mergeClasses(refConfig.value.buttonClass?.hover)
-);
-const refBtnActiveClass = computed(() =>
-  mergeClasses(refConfig.value.buttonClass?.active)
-);
-const refBtnFocusClass = computed(() =>
-  mergeClasses(refConfig.value.buttonClass?.focus)
-);
+const refChildrenBtnCss = computed(() => {
+  return (child: string): string => {
+    const css = [parsedCss.children.common || parsedCss.common];
+    if (refMouseoverChild.value == child) {
+      if (refMousedownChild.value == child) {
+        css.push(parsedCss.children.active || parsedCss.active);
+      } else {
+        css.push(parsedCss.children.hover || parsedCss.hover);
+      }
+    } else if (refFocusedChild.value == child) {
+      css.push(parsedCss.children.focus || parsedCss.focus);
+    } else if (refTouchmoveChild.value == child) {
+      css.push(parsedCss.children.active || parsedCss.active);
+    } else {
+      css.push(parsedCss.children.default || parsedCss.default);
+    }
+    return css.join(" ");
+  };
+});
 const refBadgeType = computed(() =>
   props.badge == "auto"
     ? !!slots.badge || props.children.length == 1
@@ -389,37 +443,14 @@ const refBadgeType = computed(() =>
       : "triangle"
     : props.badge
 );
-const refBadgeClasses = computed(() =>
-  props.badge == "hide"
-    ? ""
-    : mergeClasses(
-        "absolute top-0 right-0",
-        refBadgeType.value == "slot"
-          ? refConfig.value.buttonClass?.slotBadge
-          : refConfig.value.buttonClass?.badge
-      )
-);
-const refChildrenContainerClass = computed(() =>
-  mergeClasses(refConfig.value.childrenContainerClass)
-);
-const refChildBtnClass = computed(() =>
-  mergeClasses(refBtnClass.value, refConfig.value.childButtonClass?.btn)
-);
-const refChildBtnHoverClass = computed(() =>
-  mergeClasses(refBtnHoverClass.value, refConfig.value.childButtonClass?.hover)
-);
-const refChildBtnActiveClass = computed(() =>
-  mergeClasses(
-    refBtnActiveClass.value,
-    refConfig.value.childButtonClass?.active
-  )
-);
-const refChildBtnFocusClass = computed(() =>
-  mergeClasses(refBtnFocusClass.value, refConfig.value.childButtonClass?.focus)
-);
+const refBadgeCss = computed(() => [
+  parsedCss.badge.common,
+  parsedCss.badge[refBadgeType.value],
+]);
+const refChildrenContainerCss = computed(() => parsedCss.children.container);
 
 const refChildrenBridgeStyle = computed(() => {
-  const height = refConfig?.value.childrenContainerOffset?.mainAxis || 0;
+  const height = props.childrenOffset.mainAxis || 0;
   return {
     height: `calc(50% + ${height}px)`,
     top: `calc(-25% - ${height}px)`,

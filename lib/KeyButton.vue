@@ -4,7 +4,6 @@
     :children="refCurrentChildrenBtn.map < string > ((btn) => btn.value)"
     :active="active"
     :badge="badge"
-    :config="props.config"
   >
     <template v-if="$slots.badge" #badge>
       <slot name="badge"></slot>
@@ -23,7 +22,7 @@
 <script setup lang="ts">
 import { computed, inject, Ref } from "vue";
 import GenericButton from "./GenericButton.vue";
-import { VirtualKeyboardConfig, ButtonType } from "./typings";
+import { ButtonType } from "./typings";
 import { parseButtonType, prefix, slot } from "./utils";
 
 type PropsType = {
@@ -33,7 +32,6 @@ type PropsType = {
   shiftIndex?: number;
   active?: boolean;
   badge?: "auto" | "hide" | "triangle" | "slot";
-  config?: VirtualKeyboardConfig;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   label: "",
@@ -41,7 +39,6 @@ const props = withDefaults(defineProps<PropsType>(), {
   shiftIndex: 0,
   active: false,
   badge: "auto",
-  config: undefined,
 });
 const defaultBtn = {
   ...parseButtonType(props.value),

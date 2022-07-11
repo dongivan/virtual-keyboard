@@ -3,29 +3,6 @@ export type ButtonType = {
   label?: string;
 };
 
-export type ClassName = string | string[];
-type ButtonClass = {
-  btn?: ClassName;
-  hover?: ClassName;
-  focus?: ClassName;
-  active?: ClassName;
-};
-type HasBadgeClass = {
-  badge?: ClassName;
-  slotBadge?: ClassName;
-};
-export type VirtualKeyboardConfig = {
-  pageClass?: ClassName;
-  buttonClass?: ButtonClass & HasBadgeClass;
-  childrenContainerClass?: ClassName;
-  childButtonClass?: ButtonClass;
-  childrenContainerOffset?: {
-    mainAxis?: number;
-    crossAxis?: number;
-    alignmentAxis?: number;
-  };
-};
-
 export type RegisterPageFunction = (
   name: string,
   isDefault: boolean,

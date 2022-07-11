@@ -6,7 +6,9 @@
       :value="key"
       :children="[key.toUpperCase()]"
       badge="hide"
-      :config="config"
+      :css="{
+        common: 'vk-btn !w-full !h-full',
+      }"
       :style="{ gridColumnEnd: 'span 2' }"
     ></KeyButton>
     <div class="col-start-1 col-end-2 row-start-2 row-end-3" />
@@ -21,13 +23,4 @@
 <script setup lang="ts">
 import KeyButton from "../KeyButton.vue";
 import ShiftButton from "../ShiftButton.vue";
-
-const config = {
-  buttonClass: {
-    btn: ["!w-full !h-full"],
-  },
-  childrenContainerOffset: {
-    alignmentAxis: 0,
-  },
-};
 </script>
