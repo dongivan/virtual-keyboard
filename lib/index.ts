@@ -4,3 +4,4 @@ export { default as KeyboardPage } from "./KeyboardPage.vue";
 export { default as PageButton } from "./PageButton.vue";
 export { default as ShiftButton } from "./ShiftButton.vue";
 export type { ButtonType } from "./typings";
+export * from "./layouts";

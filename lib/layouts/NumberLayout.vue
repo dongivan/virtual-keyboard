@@ -1,14 +1,14 @@
 <template>
-  <div class="w-full h-max grid grid-cols-3 grid-rows-4 gap-1">
+  <div class=":uno: w-full h-max grid grid-cols-3 grid-rows-4 gap-1">
     <KeyButton
       v-for="key of refNumbers.split('')"
       :key="key"
       :value="key"
       :css="{
-        common: 'vk-btn !w-full !h-full',
+        common: ':uno: vk-btn !w-full !h-full',
       }"
     ></KeyButton>
-    <div class="col-start-1 col-end-2 row-start-4 row-end-5">
+    <div class=":uno: col-start-1 col-end-2 row-start-4 row-end-5">
       <slot name="left-bottom"></slot>
     </div>
     <slot name="right-bottom"></slot>

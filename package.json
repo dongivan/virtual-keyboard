@@ -2,7 +2,7 @@
   "name": "@dongivan/virtual-keyboard",
   "private": false,
   "version": "0.1.2",
-  "description": "A virtual keyboard based on Vue 3.2 (and tailwindcss & floating ui).",
+  "description": "A virtual keyboard based on Vue 3.2 (and floating ui).",
   "files": [
     "dist"
   ],
@@ -19,13 +19,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && vue-tsc --emitDeclarationOnly && rimraf dist/src && move dist/lib dist/types",
-    "postbuild": "npx tailwind -c tailwind.config.js -i src/assets/tailwind.css -o dist/style.css",
     "analyze": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@floating-ui/dom": "^0.5.1",
-    "tailwind-merge": "^1.2.1",
     "vue": "^3.2.25"
   },
   "devDependencies": {
@@ -34,20 +32,17 @@
     "@typescript-eslint/parser": "^5.22.0",
     "@vitejs/plugin-vue": "^2.3.3",
     "@vue/eslint-config-typescript": "^9.1.0",
-    "autoprefixer": "^10",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.7.1",
-    "postcss": "^8.4.14",
     "prettier": "^2.4.1",
     "rollup-plugin-visualizer": "^5.6.0",
     "sass": "^1.51.0",
-    "tailwindcss": "^3",
     "typescript": "~4.5.5",
+    "unocss": "^0.44.1",
     "vite": "^2.9.9",
     "vite-plugin-eslint": "^1.6.1",
-    "vue-cli-plugin-tailwind": "^3.0.0",
     "vue-tsc": "^0.34.7"
   },
   "keywords": [

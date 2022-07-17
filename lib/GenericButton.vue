@@ -39,10 +39,7 @@
         v-show="refIsChildrenVisible"
         ref="refChildrenContainerEle"
         class="vk-btn-children-container"
-        :class="[
-          refChildrenContainerCss,
-          { 'flex-row-reverse': refReverseChildren },
-        ]"
+        :class="refChildrenContainerCss"
         :style="refChildrenPositionStyle"
       >
         <button
@@ -70,22 +67,22 @@
 import { detectOverflow, Middleware, offset } from "@floating-ui/dom";
 export default {};
 
-type BadgeType = {
-  common?: string;
+type BadgeCss = {
+  base?: string;
   hide?: string;
   triangle?: string;
   slot?: string;
 };
-type ButtonType = {
-  common?: string;
+type ButtonCss = {
+  base?: string;
   default?: string;
   active?: string;
   hover?: string;
   focus?: string;
 };
-type GenericButtonType = ButtonType & {
-  badge?: BadgeType;
-  children?: ButtonType & {
+type GenericButtonCss = ButtonCss & {
+  badge?: BadgeCss;
+  children?: ButtonCss & {
     container?: string;
   };
 };
@@ -93,33 +90,33 @@ type GenericButtonType = ButtonType & {
 const deepAssign: (
   o: Record<string, unknown>,
   p: Record<string, unknown>
-) => Record<string, unknown> = (o, p) => {
-  Object.keys(p).forEach((k) => {
-    if (typeof p[k] == "object") {
-      if (typeof o[k] !== "object") {
-        o[k] = {};
+) => Record<string, unknown> = (old, object) => {
+  Object.keys(object).forEach((key) => {
+    if (typeof object[key] == "object") {
+      if (typeof old[key] !== "object") {
+        old[key] = {};
       }
       deepAssign(
-        o[k] as Record<string, unknown>,
-        p[k] as Record<string, unknown>
+        old[key] as Record<string, unknown>,
+        object[key] as Record<string, unknown>
       );
     } else {
-      o[k] = p[k];
+      old[key] = object[key];
     }
   });
-  return o;
+  return old;
 };
 
-const parseButtonCss: (css: GenericButtonType) => GenericButtonType = (css) => {
+const parseButtonCss: (css: GenericButtonCss) => GenericButtonCss = (css) => {
   return deepAssign(
     {
-      common: "vk-btn",
+      base: "vk-btn",
       default: "default",
       active: "active",
       hover: "hover",
       focus: "focus",
       badge: {
-        common: "vk-btn-badge",
+        base: "vk-btn-badge",
         hide: "hide",
         triangle: "triangle",
         slot: "slot",
@@ -129,7 +126,7 @@ const parseButtonCss: (css: GenericButtonType) => GenericButtonType = (css) => {
       },
     },
     css
-  ) as GenericButtonType;
+  ) as GenericButtonCss;
 };
 
 const placeChildren = (): Middleware => ({
@@ -195,11 +192,11 @@ type PropsType = {
   children?: string[];
   active?: boolean;
   badge?: "auto" | "hide" | "triangle" | "slot";
-  css?: GenericButtonType;
+  css?: GenericButtonCss;
   childrenOffset?: {
-    alignmentAxis: number;
-    mainAxis: number;
-    crossAxis: number;
+    alignmentAxis?: number;
+    mainAxis?: number;
+    crossAxis?: number;
   };
 };
 const props = withDefaults(defineProps<PropsType>(), {
@@ -401,7 +398,7 @@ watch(
 
 const slots = useSlots();
 const refBtnCss = computed(() => {
-  const css = [parsedCss.common];
+  const css = [parsedCss.base];
   if (refIsMouseover.value) {
     if (refIsMousedown.value) {
       css.push(parsedCss.active);
@@ -419,19 +416,19 @@ const refBtnCss = computed(() => {
 });
 const refChildrenBtnCss = computed(() => {
   return (child: string): string => {
-    const css = [parsedCss.children.common || parsedCss.common];
+    const css = [parsedCss.children?.base || parsedCss.base];
     if (refMouseoverChild.value == child) {
       if (refMousedownChild.value == child) {
-        css.push(parsedCss.children.active || parsedCss.active);
+        css.push(parsedCss.children?.active || parsedCss.active);
       } else {
-        css.push(parsedCss.children.hover || parsedCss.hover);
+        css.push(parsedCss.children?.hover || parsedCss.hover);
       }
     } else if (refFocusedChild.value == child) {
-      css.push(parsedCss.children.focus || parsedCss.focus);
+      css.push(parsedCss.children?.focus || parsedCss.focus);
     } else if (refTouchmoveChild.value == child) {
-      css.push(parsedCss.children.active || parsedCss.active);
+      css.push(parsedCss.children?.active || parsedCss.active);
     } else {
-      css.push(parsedCss.children.default || parsedCss.default);
+      css.push(parsedCss.children?.default || parsedCss.default);
     }
     return css.join(" ");
   };
@@ -444,10 +441,15 @@ const refBadgeType = computed(() =>
     : props.badge
 );
 const refBadgeCss = computed(() => [
-  parsedCss.badge.common,
-  parsedCss.badge[refBadgeType.value],
+  parsedCss.badge?.base,
+  parsedCss.badge?.[refBadgeType.value],
 ]);
-const refChildrenContainerCss = computed(() => parsedCss.children.container);
+const refChildrenContainerCss = computed(() => [
+  parsedCss.children?.container,
+  {
+    "flex-row-reverse": refReverseChildren.value,
+  },
+]);
 
 const refChildrenBridgeStyle = computed(() => {
   const height = props.childrenOffset.mainAxis || 0;
@@ -458,14 +460,4 @@ const refChildrenBridgeStyle = computed(() => {
 });
 </script>
 
-<style scoped>
-.vk-btn-default {
-  @apply relative select-none;
-}
-.vk-btn-bridge {
-  @apply absolute bg-transparent w-full left-0;
-}
-.vk-btn-children-container {
-  @apply absolute;
-}
-</style>
+<style lang="scss" scoped src="./css/GenericButton.scss"></style>
