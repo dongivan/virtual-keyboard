@@ -1,51 +1,30 @@
 <template>
-  <div
-    v-show="refCurrentPage == name"
-    class="w-full h-full"
-    :class="refDefaultClass"
-  >
+  <div v-show="refCurrentPage == name" :class="refDefaultClass">
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, inject, provide, readonly, Ref, useAttrs, watch } from "vue";
-import {
-  ClassName,
-  RegisterPageFunction,
-  VirtualKeyboardConfig,
-} from "./typings";
-import { prefix, useDefaultConfig, mergeConfigs, mergeClasses } from "./utils";
+import { RegisterPageFunction } from "./typings";
+import { prefix } from "./utils";
 
 type PropsType = {
   name?: string;
   default?: boolean;
-  pageClass?: ClassName;
-  config?: VirtualKeyboardConfig;
+  pageClass?: string;
 };
 const props = withDefaults(defineProps<PropsType>(), {
   name: "",
   default: false,
-  pageClass: "",
-  config: undefined,
+  pageClass: "vk-page",
 });
 
-const refKeyboardConfig = inject<Readonly<Ref<VirtualKeyboardConfig>>>(
-  prefix("refConfig")
-);
-const refConfig = computed<VirtualKeyboardConfig>(() =>
-  mergeConfigs(refKeyboardConfig?.value || useDefaultConfig(), props.config)
-);
-provide(prefix("refConfig"), readonly(refConfig));
-
 const attrs = useAttrs();
-const refDefaultClass = computed(() =>
-  mergeClasses(
-    refConfig?.value.pageClass,
-    props.pageClass,
-    attrs.class as string
-  )
-);
+const refDefaultClass = computed(() => [
+  props.pageClass,
+  attrs.class as string,
+]);
 
 const registerPage = inject<RegisterPageFunction>(prefix("registerPage"));
 watch(

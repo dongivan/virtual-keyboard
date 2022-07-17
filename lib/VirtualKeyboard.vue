@@ -6,27 +6,14 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, watch, computed, readonly } from "vue";
+import { provide, ref, watch, readonly } from "vue";
 import {
   ChangePageFunction,
   EmitKeyPressedFunction,
   RegisterPageFunction,
   ShiftKeyboardFunction,
-  VirtualKeyboardConfig,
 } from "./typings";
-import { prefix, useDefaultConfig, mergeConfigs } from "./utils";
-
-type PropsType = {
-  config?: VirtualKeyboardConfig;
-};
-const props = withDefaults(defineProps<PropsType>(), {
-  config: undefined,
-});
-
-const refConfig = computed<VirtualKeyboardConfig>(() =>
-  mergeConfigs(useDefaultConfig(), props.config)
-);
-provide(prefix("refConfig"), readonly(refConfig));
+import { prefix } from "./utils";
 
 const emit = defineEmits<{
   (event: "key-pressed", name: string): void;
@@ -69,3 +56,5 @@ watch(refCurrentPage, () => {
   refIsShifted.value = false;
 });
 </script>
+
+<style lang="scss" scoped src="./css/VirtualKeyboard.scss"></style>

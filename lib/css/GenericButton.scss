@@ -1,0 +1,9 @@
+.vk-btn-default {
+  @apply relative select-none;
+}
+.vk-btn-bridge {
+  @apply absolute bg-transparent w-full left-0;
+}
+.vk-btn-children-container {
+  @apply absolute;
+}
